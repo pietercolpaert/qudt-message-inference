@@ -1,0 +1,57 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:pressure-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "100"^^xsd:decimal ;
+    qudt:unit unit:PA
+  ] .
+
+@message .
+
+ex:pressure-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1.5"^^xsd:decimal ;
+    qudt:unit unit:KiloPA
+  ] .
+
+@message .
+
+ex:pressure-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.002"^^xsd:decimal ;
+    qudt:unit unit:MegaPA
+  ] .
+
+@message .
+
+ex:pressure-004 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:BAR
+  ] .
+
+@message .
+
+ex:pressure-005 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.5"^^xsd:decimal ;
+    qudt:unit unit:ATM
+  ] .
+
+@message .
+
+ex:pressure-006 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "14.6959487755"^^xsd:decimal ;
+    qudt:unit unit:PSI
+  ] .

@@ -1,0 +1,49 @@
+{
+  "dimension": "time",
+  "targetUnit": "http://qudt.org/vocab/unit/SEC",
+  "caseCount": 6,
+  "cases": [
+    {
+      "observation": "https://example.org/time-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/SEC",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "5",
+      "expectedValue": "5"
+    },
+    {
+      "observation": "https://example.org/time-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/MilliSEC",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "1500",
+      "expectedValue": "1.5"
+    },
+    {
+      "observation": "https://example.org/time-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MIN",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "2",
+      "expectedValue": "120"
+    },
+    {
+      "observation": "https://example.org/time-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/HR",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "1.5",
+      "expectedValue": "5400"
+    },
+    {
+      "observation": "https://example.org/time-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/DAY",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "0.25",
+      "expectedValue": "21600"
+    },
+    {
+      "observation": "https://example.org/time-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/WK",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "sourceValue": "0.02",
+      "expectedValue": "12096"
+    }
+  ]
+}

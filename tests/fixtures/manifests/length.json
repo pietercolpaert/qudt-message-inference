@@ -1,0 +1,77 @@
+{
+  "dimension": "length",
+  "targetUnit": "http://qudt.org/vocab/unit/M",
+  "caseCount": 10,
+  "cases": [
+    {
+      "observation": "https://example.org/length-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "1",
+      "expectedValue": "1"
+    },
+    {
+      "observation": "https://example.org/length-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/MilliM",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "12.5",
+      "expectedValue": "0.0125"
+    },
+    {
+      "observation": "https://example.org/length-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/CentiM",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "250",
+      "expectedValue": "2.5"
+    },
+    {
+      "observation": "https://example.org/length-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/DeciM",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "3.75",
+      "expectedValue": "0.375"
+    },
+    {
+      "observation": "https://example.org/length-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloM",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "0.0042",
+      "expectedValue": "4.2"
+    },
+    {
+      "observation": "https://example.org/length-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/IN",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "40",
+      "expectedValue": "1.016"
+    },
+    {
+      "observation": "https://example.org/length-007",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "12",
+      "expectedValue": "3.6576"
+    },
+    {
+      "observation": "https://example.org/length-008",
+      "sourceUnit": "http://qudt.org/vocab/unit/YD",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "5",
+      "expectedValue": "4.572"
+    },
+    {
+      "observation": "https://example.org/length-009",
+      "sourceUnit": "http://qudt.org/vocab/unit/MI",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "0.25",
+      "expectedValue": "402.336"
+    },
+    {
+      "observation": "https://example.org/length-010",
+      "sourceUnit": "http://qudt.org/vocab/unit/NMI",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "sourceValue": "2",
+      "expectedValue": "3704"
+    }
+  ]
+}

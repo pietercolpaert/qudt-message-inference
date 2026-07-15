@@ -1,0 +1,35 @@
+{
+  "dimension": "power",
+  "targetUnit": "http://qudt.org/vocab/unit/W",
+  "caseCount": 4,
+  "cases": [
+    {
+      "observation": "https://example.org/power-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/W",
+      "targetUnit": "http://qudt.org/vocab/unit/W",
+      "sourceValue": "10",
+      "expectedValue": "10"
+    },
+    {
+      "observation": "https://example.org/power-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloW",
+      "targetUnit": "http://qudt.org/vocab/unit/W",
+      "sourceValue": "2.5",
+      "expectedValue": "2500"
+    },
+    {
+      "observation": "https://example.org/power-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MegaW",
+      "targetUnit": "http://qudt.org/vocab/unit/W",
+      "sourceValue": "0.003",
+      "expectedValue": "3000"
+    },
+    {
+      "observation": "https://example.org/power-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/HP",
+      "targetUnit": "http://qudt.org/vocab/unit/W",
+      "sourceValue": "1",
+      "expectedValue": "745.69987158227022"
+    }
+  ]
+}

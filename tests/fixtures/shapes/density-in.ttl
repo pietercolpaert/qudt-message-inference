@@ -1,0 +1,22 @@
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:DensityInputShape a sh:NodeShape ;
+  sh:targetClass ex:Observation ;
+  sh:property [
+    sh:path ex:quantity ;
+    sh:node ex:DensityQuantityInputShape
+  ] .
+
+ex:DensityQuantityInputShape a sh:NodeShape ;
+  sh:property [
+    sh:path qudt:numericValue ;
+    sh:datatype xsd:decimal
+  ] ;
+  sh:property [
+    sh:path qudt:unit ;
+    sh:in ( unit:KiloGM-PER-M3 unit:GM-PER-CentiM3 unit:LB_M-PER-FT3 )
+  ] .

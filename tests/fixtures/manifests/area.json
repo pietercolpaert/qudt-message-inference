@@ -1,0 +1,56 @@
+{
+  "dimension": "area",
+  "targetUnit": "http://qudt.org/vocab/unit/M2",
+  "caseCount": 7,
+  "cases": [
+    {
+      "observation": "https://example.org/area-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M2",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "2",
+      "expectedValue": "2"
+    },
+    {
+      "observation": "https://example.org/area-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/CentiM2",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "25000",
+      "expectedValue": "2.5"
+    },
+    {
+      "observation": "https://example.org/area-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloM2",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "0.5",
+      "expectedValue": "500000"
+    },
+    {
+      "observation": "https://example.org/area-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT2",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "100",
+      "expectedValue": "9.290304"
+    },
+    {
+      "observation": "https://example.org/area-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/IN2",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "144",
+      "expectedValue": "0.09290304"
+    },
+    {
+      "observation": "https://example.org/area-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/HA",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "0.01",
+      "expectedValue": "100"
+    },
+    {
+      "observation": "https://example.org/area-007",
+      "sourceUnit": "http://qudt.org/vocab/unit/AC",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "sourceValue": "0.25",
+      "expectedValue": "1011.7141056"
+    }
+  ]
+}

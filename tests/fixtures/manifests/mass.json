@@ -1,0 +1,56 @@
+{
+  "dimension": "mass",
+  "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+  "caseCount": 7,
+  "cases": [
+    {
+      "observation": "https://example.org/mass-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "5",
+      "expectedValue": "5"
+    },
+    {
+      "observation": "https://example.org/mass-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/GM",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "1250",
+      "expectedValue": "1.25"
+    },
+    {
+      "observation": "https://example.org/mass-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MilliGM",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "250000",
+      "expectedValue": "0.25"
+    },
+    {
+      "observation": "https://example.org/mass-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/LB_M",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "10",
+      "expectedValue": "4.5359237"
+    },
+    {
+      "observation": "https://example.org/mass-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/OZ",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "32",
+      "expectedValue": "0.90718474"
+    },
+    {
+      "observation": "https://example.org/mass-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/TON_SHORT",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "0.5",
+      "expectedValue": "453.59237"
+    },
+    {
+      "observation": "https://example.org/mass-007",
+      "sourceUnit": "http://qudt.org/vocab/unit/TONNE",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "sourceValue": "2",
+      "expectedValue": "2000"
+    }
+  ]
+}

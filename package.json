@@ -1,0 +1,45 @@
+{
+  "name": "qudt-message-inference",
+  "version": "0.1.0",
+  "description": "SHACL-planned QUDT unit conversion for RDF Message Streams using Eyeling backward N3 rules.",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "type": "commonjs",
+  "files": [
+    "dist/src/",
+    "rules/",
+    "background/qudt-conversion-background.n3",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean --silent && tsc -p tsconfig.json",
+    "test": "npm run build --silent && node --test dist/tests/*.test.js",
+    "example": "npm run build --silent && node dist/examples/normalize-length/run.js",
+    "build:background": "npm run build --silent && node dist/scripts/build-background.js"
+  },
+  "dependencies": {
+    "@rdfjs/types": "^2.0.1",
+    "eyeling": "^2.35.1",
+    "rdf-parser-ts": "^0.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "keywords": [
+    "RDF",
+    "RDFJS",
+    "QUDT",
+    "SHACL",
+    "N3",
+    "Eyeling",
+    "unit-conversion",
+    "RDF-Messages"
+  ],
+  "license": "MIT"
+}

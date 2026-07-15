@@ -1,0 +1,35 @@
+{
+  "dimension": "temperature",
+  "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+  "caseCount": 4,
+  "cases": [
+    {
+      "observation": "https://example.org/temperature-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/K",
+      "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "sourceValue": "273.15",
+      "expectedValue": "0"
+    },
+    {
+      "observation": "https://example.org/temperature-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "sourceValue": "100",
+      "expectedValue": "100"
+    },
+    {
+      "observation": "https://example.org/temperature-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/DEG_F",
+      "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "sourceValue": "32",
+      "expectedValue": "0.000000000000000000000000000000021852"
+    },
+    {
+      "observation": "https://example.org/temperature-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/DEG_R",
+      "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "sourceValue": "491.67",
+      "expectedValue": "0.000000000000000000000000000000021852"
+    }
+  ]
+}

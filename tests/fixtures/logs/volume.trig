@@ -1,0 +1,66 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:volume-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:M3
+  ] .
+
+@message .
+
+ex:volume-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "2"^^xsd:decimal ;
+    qudt:unit unit:L
+  ] .
+
+@message .
+
+ex:volume-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "750"^^xsd:decimal ;
+    qudt:unit unit:MilliL
+  ] .
+
+@message .
+
+ex:volume-004 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "125"^^xsd:decimal ;
+    qudt:unit unit:CentiM3
+  ] .
+
+@message .
+
+ex:volume-005 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "3"^^xsd:decimal ;
+    qudt:unit unit:FT3
+  ] .
+
+@message .
+
+ex:volume-006 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "100"^^xsd:decimal ;
+    qudt:unit unit:IN3
+  ] .
+
+@message .
+
+ex:volume-007 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "5"^^xsd:decimal ;
+    qudt:unit unit:GAL_US
+  ] .

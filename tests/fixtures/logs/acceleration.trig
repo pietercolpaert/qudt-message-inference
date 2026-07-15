@@ -1,0 +1,30 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:acceleration-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:M-PER-SEC2
+  ] .
+
+@message .
+
+ex:acceleration-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "32.1740485564"^^xsd:decimal ;
+    qudt:unit unit:FT-PER-SEC2
+  ] .
+
+@message .
+
+ex:acceleration-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:G
+  ] .

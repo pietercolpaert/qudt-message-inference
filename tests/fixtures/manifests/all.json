@@ -1,0 +1,71 @@
+{
+  "dimensions": [
+    {
+      "name": "length",
+      "targetUnit": "http://qudt.org/vocab/unit/M",
+      "messages": 10
+    },
+    {
+      "name": "time",
+      "targetUnit": "http://qudt.org/vocab/unit/SEC",
+      "messages": 6
+    },
+    {
+      "name": "speed",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "messages": 5
+    },
+    {
+      "name": "mass",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM",
+      "messages": 7
+    },
+    {
+      "name": "temperature",
+      "targetUnit": "http://qudt.org/vocab/unit/DEG_C",
+      "messages": 4
+    },
+    {
+      "name": "area",
+      "targetUnit": "http://qudt.org/vocab/unit/M2",
+      "messages": 7
+    },
+    {
+      "name": "volume",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "messages": 7
+    },
+    {
+      "name": "pressure",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "messages": 6
+    },
+    {
+      "name": "energy",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "messages": 7
+    },
+    {
+      "name": "power",
+      "targetUnit": "http://qudt.org/vocab/unit/W",
+      "messages": 4
+    },
+    {
+      "name": "angle",
+      "targetUnit": "http://qudt.org/vocab/unit/RAD",
+      "messages": 4
+    },
+    {
+      "name": "acceleration",
+      "targetUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+      "messages": 3
+    },
+    {
+      "name": "density",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+      "messages": 3
+    }
+  ],
+  "totalUnits": 73,
+  "totalMessages": 73
+}

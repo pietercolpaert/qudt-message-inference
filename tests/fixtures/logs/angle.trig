@@ -1,0 +1,39 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:angle-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:RAD
+  ] .
+
+@message .
+
+ex:angle-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "180"^^xsd:decimal ;
+    qudt:unit unit:DEG
+  ] .
+
+@message .
+
+ex:angle-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "200"^^xsd:decimal ;
+    qudt:unit unit:GRAD
+  ] .
+
+@message .
+
+ex:angle-004 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.25"^^xsd:decimal ;
+    qudt:unit unit:REV
+  ] .

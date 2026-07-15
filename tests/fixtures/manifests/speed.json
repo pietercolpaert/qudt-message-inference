@@ -1,0 +1,42 @@
+{
+  "dimension": "speed",
+  "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+  "caseCount": 5,
+  "cases": [
+    {
+      "observation": "https://example.org/speed-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M-PER-SEC",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "10",
+      "expectedValue": "35.99999999999999999999999999999999712"
+    },
+    {
+      "observation": "https://example.org/speed-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "90",
+      "expectedValue": "90"
+    },
+    {
+      "observation": "https://example.org/speed-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MI-PER-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "60",
+      "expectedValue": "96.56063999999999999999999999999999227515"
+    },
+    {
+      "observation": "https://example.org/speed-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT-PER-SEC",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "100",
+      "expectedValue": "109.7279999999999999999999999999999912218"
+    },
+    {
+      "observation": "https://example.org/speed-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/KNOT",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "12",
+      "expectedValue": "22.22399999999999999999999999999999630208"
+    }
+  ]
+}

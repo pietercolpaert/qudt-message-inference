@@ -1,0 +1,35 @@
+{
+  "dimension": "angle",
+  "targetUnit": "http://qudt.org/vocab/unit/RAD",
+  "caseCount": 4,
+  "cases": [
+    {
+      "observation": "https://example.org/angle-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/RAD",
+      "targetUnit": "http://qudt.org/vocab/unit/RAD",
+      "sourceValue": "1",
+      "expectedValue": "1"
+    },
+    {
+      "observation": "https://example.org/angle-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/DEG",
+      "targetUnit": "http://qudt.org/vocab/unit/RAD",
+      "sourceValue": "180",
+      "expectedValue": "3.14159265358979323846264338327948"
+    },
+    {
+      "observation": "https://example.org/angle-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/GRAD",
+      "targetUnit": "http://qudt.org/vocab/unit/RAD",
+      "sourceValue": "200",
+      "expectedValue": "3.1415926535897932384626433832796"
+    },
+    {
+      "observation": "https://example.org/angle-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/REV",
+      "targetUnit": "http://qudt.org/vocab/unit/RAD",
+      "sourceValue": "0.25",
+      "expectedValue": "1.57079632679489661923132169163975"
+    }
+  ]
+}

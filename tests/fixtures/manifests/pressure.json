@@ -1,0 +1,49 @@
+{
+  "dimension": "pressure",
+  "targetUnit": "http://qudt.org/vocab/unit/PA",
+  "caseCount": 6,
+  "cases": [
+    {
+      "observation": "https://example.org/pressure-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/PA",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "100",
+      "expectedValue": "100"
+    },
+    {
+      "observation": "https://example.org/pressure-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloPA",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "1.5",
+      "expectedValue": "1500"
+    },
+    {
+      "observation": "https://example.org/pressure-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MegaPA",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "0.002",
+      "expectedValue": "2000"
+    },
+    {
+      "observation": "https://example.org/pressure-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/BAR",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "1",
+      "expectedValue": "100000"
+    },
+    {
+      "observation": "https://example.org/pressure-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/ATM",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "0.5",
+      "expectedValue": "50662.5"
+    },
+    {
+      "observation": "https://example.org/pressure-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/PSI",
+      "targetUnit": "http://qudt.org/vocab/unit/PA",
+      "sourceValue": "14.6959487755",
+      "expectedValue": "101324.999999901964115784"
+    }
+  ]
+}

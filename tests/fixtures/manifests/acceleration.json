@@ -1,0 +1,28 @@
+{
+  "dimension": "acceleration",
+  "targetUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+  "caseCount": 3,
+  "cases": [
+    {
+      "observation": "https://example.org/acceleration-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+      "targetUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+      "sourceValue": "1",
+      "expectedValue": "1"
+    },
+    {
+      "observation": "https://example.org/acceleration-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT-PER-SEC2",
+      "targetUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+      "sourceValue": "32.1740485564",
+      "expectedValue": "9.80664999999072"
+    },
+    {
+      "observation": "https://example.org/acceleration-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/G",
+      "targetUnit": "http://qudt.org/vocab/unit/M-PER-SEC2",
+      "sourceValue": "1",
+      "expectedValue": "9.80665"
+    }
+  ]
+}

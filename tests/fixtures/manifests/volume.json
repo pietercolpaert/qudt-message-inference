@@ -1,0 +1,56 @@
+{
+  "dimension": "volume",
+  "targetUnit": "http://qudt.org/vocab/unit/L",
+  "caseCount": 7,
+  "cases": [
+    {
+      "observation": "https://example.org/volume-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M3",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "1",
+      "expectedValue": "1000"
+    },
+    {
+      "observation": "https://example.org/volume-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/L",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "2",
+      "expectedValue": "2"
+    },
+    {
+      "observation": "https://example.org/volume-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MilliL",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "750",
+      "expectedValue": "0.75"
+    },
+    {
+      "observation": "https://example.org/volume-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/CentiM3",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "125",
+      "expectedValue": "0.125"
+    },
+    {
+      "observation": "https://example.org/volume-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT3",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "3",
+      "expectedValue": "84.950539776"
+    },
+    {
+      "observation": "https://example.org/volume-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/IN3",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "100",
+      "expectedValue": "1.6387064"
+    },
+    {
+      "observation": "https://example.org/volume-007",
+      "sourceUnit": "http://qudt.org/vocab/unit/GAL_US",
+      "targetUnit": "http://qudt.org/vocab/unit/L",
+      "sourceValue": "5",
+      "expectedValue": "18.92705892"
+    }
+  ]
+}

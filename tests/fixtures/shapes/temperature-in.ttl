@@ -1,0 +1,22 @@
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:TemperatureInputShape a sh:NodeShape ;
+  sh:targetClass ex:Observation ;
+  sh:property [
+    sh:path ex:quantity ;
+    sh:node ex:TemperatureQuantityInputShape
+  ] .
+
+ex:TemperatureQuantityInputShape a sh:NodeShape ;
+  sh:property [
+    sh:path qudt:numericValue ;
+    sh:datatype xsd:decimal
+  ] ;
+  sh:property [
+    sh:path qudt:unit ;
+    sh:in ( unit:K unit:DEG_C unit:DEG_F unit:DEG_R )
+  ] .

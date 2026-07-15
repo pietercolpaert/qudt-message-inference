@@ -1,0 +1,39 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:power-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "10"^^xsd:decimal ;
+    qudt:unit unit:W
+  ] .
+
+@message .
+
+ex:power-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "2.5"^^xsd:decimal ;
+    qudt:unit unit:KiloW
+  ] .
+
+@message .
+
+ex:power-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.003"^^xsd:decimal ;
+    qudt:unit unit:MegaW
+  ] .
+
+@message .
+
+ex:power-004 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:HP
+  ] .

@@ -1,0 +1,93 @@
+@version "1.2-messages" .
+@prefix ex: <https://example.org/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:length-001 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "1"^^xsd:decimal ;
+    qudt:unit unit:M
+  ] .
+
+@message .
+
+ex:length-002 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "12.5"^^xsd:decimal ;
+    qudt:unit unit:MilliM
+  ] .
+
+@message .
+
+ex:length-003 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "250"^^xsd:decimal ;
+    qudt:unit unit:CentiM
+  ] .
+
+@message .
+
+ex:length-004 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "3.75"^^xsd:decimal ;
+    qudt:unit unit:DeciM
+  ] .
+
+@message .
+
+ex:length-005 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.0042"^^xsd:decimal ;
+    qudt:unit unit:KiloM
+  ] .
+
+@message .
+
+ex:length-006 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "40"^^xsd:decimal ;
+    qudt:unit unit:IN
+  ] .
+
+@message .
+
+ex:length-007 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "12"^^xsd:decimal ;
+    qudt:unit unit:FT
+  ] .
+
+@message .
+
+ex:length-008 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "5"^^xsd:decimal ;
+    qudt:unit unit:YD
+  ] .
+
+@message .
+
+ex:length-009 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "0.25"^^xsd:decimal ;
+    qudt:unit unit:MI
+  ] .
+
+@message .
+
+ex:length-010 a ex:Observation ;
+  ex:quantity [
+    a qudt:QuantityValue ;
+    qudt:numericValue "2"^^xsd:decimal ;
+    qudt:unit unit:NMI
+  ] .

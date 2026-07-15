@@ -1,0 +1,56 @@
+{
+  "dimension": "energy",
+  "targetUnit": "http://qudt.org/vocab/unit/J",
+  "caseCount": 7,
+  "cases": [
+    {
+      "observation": "https://example.org/energy-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/J",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "1",
+      "expectedValue": "1"
+    },
+    {
+      "observation": "https://example.org/energy-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloJ",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "2.5",
+      "expectedValue": "2500"
+    },
+    {
+      "observation": "https://example.org/energy-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MegaJ",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "0.003",
+      "expectedValue": "3000"
+    },
+    {
+      "observation": "https://example.org/energy-004",
+      "sourceUnit": "http://qudt.org/vocab/unit/W-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "1",
+      "expectedValue": "3600"
+    },
+    {
+      "observation": "https://example.org/energy-005",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloW-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "0.5",
+      "expectedValue": "1800000"
+    },
+    {
+      "observation": "https://example.org/energy-006",
+      "sourceUnit": "http://qudt.org/vocab/unit/CAL_IT",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "100",
+      "expectedValue": "418.68"
+    },
+    {
+      "observation": "https://example.org/energy-007",
+      "sourceUnit": "http://qudt.org/vocab/unit/BTU_IT",
+      "targetUnit": "http://qudt.org/vocab/unit/J",
+      "sourceValue": "2",
+      "expectedValue": "2110.11170524"
+    }
+  ]
+}

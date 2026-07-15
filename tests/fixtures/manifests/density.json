@@ -1,0 +1,28 @@
+{
+  "dimension": "density",
+  "targetUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+  "caseCount": 3,
+  "cases": [
+    {
+      "observation": "https://example.org/density-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+      "sourceValue": "1",
+      "expectedValue": "1"
+    },
+    {
+      "observation": "https://example.org/density-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/GM-PER-CentiM3",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+      "sourceValue": "1",
+      "expectedValue": "1000"
+    },
+    {
+      "observation": "https://example.org/density-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/LB_M-PER-FT3",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloGM-PER-M3",
+      "sourceValue": "62.4279605761",
+      "expectedValue": "999.9999999992852863969155018"
+    }
+  ]
+}
