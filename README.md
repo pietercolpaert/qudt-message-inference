@@ -23,6 +23,62 @@ A conversion is allowed only when source and target units have the same `qudt:ha
 
 This covers common scale conversions, affine absolute-temperature conversions, and compound units that QUDT already expresses with a multiplier, for example metres/second to kilometres/hour. It does not claim support for logarithmic, reciprocal, contextual, calendar-dependent, currency, or other non-affine conversions. Temperature fixtures represent absolute temperatures, not temperature intervals.
 
+## Planned conversion coverage
+
+The current affine profile is a first step rather than a claim to implement every
+conversion or scale represented by QUDT. We plan to add conversion profiles incrementally,
+with explicit capability checks instead of silently treating every unit as affine.
+
+Planned areas include:
+
+- broader affine coverage from the official QUDT distribution;
+- logarithmic conversions such as bel, decibel, neper, octave, decade, and pH;
+- reciprocal conversions such as period to frequency;
+- calendar-aware durations, including variable month and year lengths;
+- currency and other conversions whose values change over time;
+- contextual units that depend on a substance, reference temperature or pressure,
+  location, calibration, or another observation;
+- empirical, piecewise, and lookup-table transformations;
+- correct separation of absolute quantities from delta quantities, especially
+  absolute temperature versus temperature difference;
+- quantity-kind compatibility in addition to dimension-vector compatibility;
+- deriving conversions from prefixes and factor-unit structure when no complete
+  multiplier is supplied; and
+- uncertainty and provenance propagation through a conversion.
+
+Nominal, ordinal, and enumeration scales are represented by QUDT but are not ordinary
+numeric unit conversions. Cross-dimension calculations such as mass to volume using
+density are likewise domain transformations. These may use the same planning and rule
+infrastructure, but should remain distinguishable from unit conversion.
+
+### Runtime conversion context
+
+Some context is stable enough to be part of a specific QUDT unit definition. For example,
+a contextual unit may identify fixed reference temperature and pressure conditions and
+publish a conversion multiplier for precisely those conditions. Such a unit can be used by
+the affine profile when the required metadata is explicit.
+
+Other conversions depend on the state of the world or on the message being processed. An
+exchange rate needs currencies, an effective time, and a rate source; a calendar conversion
+needs a calendar and reference date; a gas-volume conversion may need temperature,
+pressure, composition, and a reference standard. A substance-dependent unit needs the
+substance to be identified. These inputs cannot be recovered from a dimension vector or a
+static multiplier.
+
+QUDT provides useful modeling hooks, including `qudt:ContextualUnit`, `qudt:Rule`,
+`qudt:hasReciprocalUnit`, scale types, and `qudt:permissibleTransformation`. These can be
+reused when describing future conversion profiles. QUDT does not, however, prescribe a
+complete runtime protocol for supplying changing contextual values to a conversion engine.
+See the [current QUDT schema](https://www.qudt.org/doc/DOC_SCHEMA-QUDT.html) and
+[QUDT reference explorer](https://qudt.org/tools/qudt-reference-explorer/).
+
+We therefore plan to let callers provide a conversion-context RDF graph alongside the
+messages and SHACL shapes. It will likely carry contextual values, observation/effective
+times, validity intervals, data providers, reference conditions, and provenance. The exact
+vocabulary, conflict-resolution rules, reproducibility requirements, and API are not yet
+fully designed. Until they are, the engine must reject conversions that require unavailable
+or ambiguous context rather than guess a value.
+
 ## Requirements
 
 - Node.js 24 or newer
