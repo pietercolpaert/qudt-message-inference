@@ -1,6 +1,6 @@
 import type { Quad, Term } from '@rdfjs/types';
 import { firstObject, objects, subjects } from './graph';
-import { iri } from './rdf';
+import { escapeLiteral, iri } from './rdf';
 import type { InputShapePlan, PlannerSummary, QudtUnitDefinition } from './types';
 import { QCR, QUDT } from './vocab';
 
@@ -36,12 +36,16 @@ export class QudtUnitIndex {
       const symbol = objects(backgroundKnowledge, subject, QUDT.symbol).find(
         (term) => term.termType === 'Literal',
       )?.value;
+      const ucumCodes = objects(backgroundKnowledge, subject, QUDT.ucumCode)
+        .filter((term) => term.termType === 'Literal')
+        .map((term) => term.value);
       map.set(subject.value, {
         iri: subject.value,
         dimensionVector: dimension.value,
         multiplier,
         offset,
         symbol,
+        ucumCodes,
       });
     }
     this.unitsByIri = map;
@@ -87,6 +91,7 @@ export class QudtUnitIndex {
       sourceUnits,
       sourceDimensions,
       summary: {
+        inputRepresentation: input.representation,
         totalQudtUnits: this.size,
         retainedQudtUnits: retainedUnits.length,
         sourceUnits: sourceUnits.map((unit) => unit.iri).sort(),
@@ -108,6 +113,12 @@ export class QudtUnitIndex {
         `  ${iri(QCR.effectiveConversionOffset)} "${unit.offset}"^^<http://www.w3.org/2001/XMLSchema#decimal> .`,
         '',
       );
+      for (const code of [...unit.ucumCodes].sort()) {
+        lines.push(
+          `${iri(unit.iri)} ${iri(QCR.recognizedUcumCode)} "${escapeLiteral(code)}" .`,
+        );
+      }
+      if (unit.ucumCodes.length > 0) lines.push('');
     }
     return lines.join('\n');
   }

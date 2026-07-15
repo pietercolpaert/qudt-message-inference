@@ -3,11 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta
-      name="description"
-      content="Explore QUDT unit conversion test cases directly in the browser."
-    >
-    <title>QUDT unit conversion playground</title>
+    <meta name="description" content="Edit RDF Messages and preview QUDT unit conversion in the browser.">
+    <title>QUDT RDF conversion playground</title>
     <link rel="stylesheet" href="styles.css">
     <script src="cases.js" defer></script>
     <script src="app.js" defer></script>
@@ -25,14 +22,14 @@
       </nav>
 
       <div class="hero-copy">
-        <p class="eyebrow">Browser playground</p>
-        <h1>Unit conversion,<br><em>grounded in QUDT.</em></h1>
+        <p class="eyebrow">Editable RDF playground</p>
+        <h1>RDF in.<br><em>Normalized RDF out.</em></h1>
         <p class="intro">
-          Pick any fixture from the test corpus, edit its value, and follow the affine
-          conversion from an RDF Message to its normalized result.
+          Load a tested example, edit the complete RDF Message, and preview its QUDT
+          conversion—including UCUM units embedded in CDT typed literals.
         </p>
-        <div class="corpus-stats" aria-label="Test corpus summary">
-          <span><strong id="case-count">73</strong> test cases</span>
+        <div class="corpus-stats" aria-label="Playground example summary">
+          <span><strong id="case-count">78</strong> examples</span>
           <span><strong id="unit-count">73</strong> units</span>
           <span><strong id="dimension-count">13</strong> dimensions</span>
         </div>
@@ -43,31 +40,42 @@
       <section class="workbench" aria-labelledby="workbench-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Try the corpus</p>
-            <h2 id="workbench-title">Conversion workbench</h2>
+            <p class="eyebrow">RDF Message workbench</p>
+            <h2 id="workbench-title">Edit the data itself</h2>
           </div>
-          <span class="status" id="status">Fixture matches</span>
+          <span class="status" id="status" role="status">Example matches</span>
         </div>
 
         <div class="controls">
           <label class="case-control">
-            <span>Test case</span>
+            <span>Load example</span>
             <select id="case-select" aria-describedby="case-help"></select>
-            <small id="case-help">Cases are generated from tests/fixtures/manifests.</small>
+            <small id="case-help">All options come from executable test fixtures.</small>
           </label>
-
-          <label class="value-control">
-            <span>Source value</span>
-            <span class="input-shell">
-              <input id="source-value" type="number" inputmode="decimal" step="any">
-              <b id="source-symbol" aria-label="Source unit"></b>
-            </span>
-          </label>
+          <button class="run-button" id="run-conversion" type="button">Run conversion</button>
         </div>
+
+        <div class="rdf-workspace">
+          <article class="editor-card input-card">
+            <div class="code-title">
+              <span><span class="dot input-dot"></span>Editable input RDF</span>
+              <span class="shortcut">Ctrl/⌘ + Enter</span>
+            </div>
+            <textarea id="rdf-input" aria-label="Editable input RDF Message" spellcheck="false"></textarea>
+          </article>
+          <article class="editor-card output-card">
+            <div class="code-title"><span class="dot output-dot"></span>Inferred output RDF</div>
+            <pre><code id="output-rdf"></code></pre>
+          </article>
+        </div>
+        <p class="editor-help" id="editor-help">
+          The browser preview recognizes the supported nested QUDT quantity and direct
+          <code>cdt:ucum</code>/<code>cdt:speed</code> input profiles.
+        </p>
 
         <div class="conversion-path" aria-label="Conversion result">
           <article class="quantity source-quantity">
-            <p>Source</p>
+            <p>Parsed source</p>
             <strong id="source-display"></strong>
             <span id="source-name"></span>
           </article>
@@ -90,27 +98,8 @@
             <p class="panel-label">QUDT affine conversion</p>
             <code id="formula"></code>
           </div>
-          <button id="reset-value" type="button">Reset fixture value</button>
-        </div>
-      </section>
-
-      <section class="message-grid" aria-labelledby="message-title">
-        <div class="section-heading message-heading">
-          <div>
-            <p class="eyebrow">RDF Message view</p>
-            <h2 id="message-title">Input and inferred output</h2>
-          </div>
           <span class="observation" id="observation"></span>
         </div>
-
-        <article class="code-card">
-          <div class="code-title"><span class="dot input-dot"></span> Input message</div>
-          <pre><code id="input-rdf"></code></pre>
-        </article>
-        <article class="code-card">
-          <div class="code-title"><span class="dot output-dot"></span> Normalized quantity</div>
-          <pre><code id="output-rdf"></code></pre>
-        </article>
       </section>
 
       <section class="metadata" aria-labelledby="metadata-title">
@@ -118,16 +107,18 @@
           <p class="eyebrow">Under the hood</p>
           <h2 id="metadata-title">Conversion metadata</h2>
           <p>
-            The browser applies the same affine formula documented by the execution
-            profile. The Node test suite verifies these fixture results through Eyeling.
+            This dependency-free browser preview mirrors the affine calculation. The
+            Node test suite runs the RDF fixtures through Eyeling; CDT lexical parsing
+            and UCUM-to-QUDT matching happen in N3 rules there.
           </p>
         </div>
         <dl>
+          <div><dt>Input profile</dt><dd id="input-profile"></dd></div>
           <div><dt>Dimension</dt><dd id="dimension"></dd></div>
-          <div><dt>Source multiplier</dt><dd id="source-multiplier"></dd></div>
-          <div><dt>Source offset</dt><dd id="source-offset"></dd></div>
-          <div><dt>Target multiplier</dt><dd id="target-multiplier"></dd></div>
-          <div><dt>Target offset</dt><dd id="target-offset"></dd></div>
+          <div><dt>Source unit</dt><dd id="source-unit"></dd></div>
+          <div><dt>Source multiplier / offset</dt><dd id="source-affine"></dd></div>
+          <div><dt>Target unit</dt><dd id="target-unit"></dd></div>
+          <div><dt>Target multiplier / offset</dt><dd id="target-affine"></dd></div>
           <div><dt>Expected fixture value</dt><dd id="expected-value"></dd></div>
         </dl>
       </section>
@@ -135,8 +126,7 @@
 
     <footer>
       <span>QUDT Message Inference</span>
-      <span>73 curated units · MIT licensed</span>
+      <span>73 curated units · 78 editable examples · MIT licensed</span>
     </footer>
   </body>
 </html>
-

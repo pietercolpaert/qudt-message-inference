@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NUMERIC_DATATYPES = exports.QCR = exports.PROV = exports.QUDT = exports.SH = exports.XSD = exports.RDF = void 0;
+exports.NUMERIC_DATATYPES = exports.QCR = exports.PROV = exports.CDT = exports.QUDT = exports.SH = exports.XSD = exports.RDF = void 0;
 exports.RDF = {
     type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
     first: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
@@ -46,6 +46,21 @@ exports.QUDT = {
     conversionOffset: 'http://qudt.org/schema/qudt/conversionOffset',
     hasDimensionVector: 'http://qudt.org/schema/qudt/hasDimensionVector',
     symbol: 'http://qudt.org/schema/qudt/symbol',
+    ucumCode: 'http://qudt.org/schema/qudt/ucumCode',
+};
+exports.CDT = {
+    namespace: 'http://w3id.org/lindt/custom_datatypes#',
+    shortNamespace: 'https://w3id.org/cdt/',
+    ucum: 'http://w3id.org/lindt/custom_datatypes#ucum',
+    speed: 'http://w3id.org/lindt/custom_datatypes#speed',
+    shortUcum: 'https://w3id.org/cdt/ucum',
+    shortSpeed: 'https://w3id.org/cdt/speed',
+    supported: new Set([
+        'http://w3id.org/lindt/custom_datatypes#ucum',
+        'http://w3id.org/lindt/custom_datatypes#speed',
+        'https://w3id.org/cdt/ucum',
+        'https://w3id.org/cdt/speed',
+    ]),
 };
 exports.PROV = {
     wasDerivedFrom: 'http://www.w3.org/ns/prov#wasDerivedFrom',
@@ -56,6 +71,13 @@ exports.QCR = {
     effectiveConversionOffset: 'https://w3id.org/qudt-inference#effectiveConversionOffset',
     convertedValue: 'https://w3id.org/qudt-inference#convertedValue',
     convertedNumericValue: 'https://w3id.org/qudt-inference#convertedNumericValue',
+    parsedCdtValue: 'https://w3id.org/qudt-inference#parsedCdtValue',
+    parsedSourceLiteral: 'https://w3id.org/qudt-inference#parsedSourceLiteral',
+    parsedSourceValue: 'https://w3id.org/qudt-inference#parsedSourceValue',
+    parsedSourceUnit: 'https://w3id.org/qudt-inference#parsedSourceUnit',
+    recognizedUcumCode: 'https://w3id.org/qudt-inference#recognizedUcumCode',
+    allowedCdtSourceUnit: 'https://w3id.org/qudt-inference#allowedCdtSourceUnit',
+    supportedCdtDatatype: 'https://w3id.org/qudt-inference#supportedCdtDatatype',
     convertedFromUnit: 'https://w3id.org/qudt-inference#convertedFromUnit',
     convertedToUnit: 'https://w3id.org/qudt-inference#convertedToUnit',
     conversionProfile: 'https://w3id.org/qudt-inference#conversionProfile',

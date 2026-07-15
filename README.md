@@ -23,6 +23,14 @@ A conversion is allowed only when source and target units have the same `qudt:ha
 
 This covers common scale conversions, affine absolute-temperature conversions, and compound units that QUDT already expresses with a multiplier, for example metres/second to kilometres/hour. It does not claim support for logarithmic, reciprocal, contextual, calendar-dependent, currency, or other non-affine conversions. Temperature fixtures represent absolute temperatures, not temperature intervals.
 
+Version 0.1 also accepts direct literals typed as `cdt:ucum` or `cdt:speed`. Both the
+original namespace (`http://w3id.org/lindt/custom_datatypes#`) and the shorter
+`https://w3id.org/cdt/` namespace are recognized. Eyeling extracts the number and UCUM
+code from the lexical form with N3 built-ins, then matches the code to QUDT's
+`qudt:ucumCode`. The JavaScript layer does not parse the CDT lexical form or calculate its
+value; it plans the trusted unit subset and constructs the inferred RDF Message from N3
+results. Output remains a normalized nested `qudt:QuantityValue`.
+
 ## Planned conversion coverage
 
 The current affine profile is a first step rather than a claim to implement every
@@ -96,8 +104,10 @@ npm test
 ## Browser playground
 
 The static [QUDT unit conversion playground](https://pietercolpaert.github.io/qudt-message-inference/)
-contains a selectable dropdown for all 73 test cases. Values can be edited in the browser,
-and the page shows the QUDT affine calculation together with input and normalized RDF.
+contains a selectable dropdown for all 73 structured conversion cases plus five CDT
+literal examples. The complete input RDF is the primary editable surface, and the page
+shows the normalized RDF and affine calculation. The dependency-free browser parser is a
+preview; the test suite runs the same fixtures through Eyeling and the N3 rules.
 
 Run it locally without adding a web-server dependency:
 
@@ -109,7 +119,9 @@ The build generates `dist/playground/` from the JSON manifests and QUDT metadata
 Pages deploys that committed artifact from `main`; set the repository's Pages source to
 **GitHub Actions** before the first deployment.
 
-The test corpus contains **73 RDF Messages using 73 curated QUDT units across 13 dimensions**:
+The structured baseline corpus contains **73 RDF Messages using 73 curated QUDT units
+across 13 dimensions**. Five additional RDF Messages exercise the CDT literal input
+profile:
 
 | Dimension | Target unit | Cases |
 |---|---:|---:|
@@ -137,6 +149,7 @@ tests/fixtures/manifests/<dimension>.json
 ```
 
 The JSON manifests are independent numerical oracles for the expected converted values.
+The literal fixtures use the same layout with the `cdt-speed` and `cdt-ucum` names.
 
 ## API
 
@@ -167,7 +180,8 @@ The constructor compiles SHACL IN and indexes the QUDT background. SHACL IN must
 
 - `sh:in` on the quantity's `qudt:unit` property shape;
 - `sh:hasValue` on that property shape;
-- `sh:unit` on the numeric property shape.
+- `sh:unit` on the numeric property shape; or
+- `sh:unit` on a direct `cdt:ucum`/`cdt:speed` property shape.
 
 The engine retains only QUDT unit definitions in dimensions reachable from those source units. This is the load-time pruning stage. It assumes that SHACL IN is a trusted producer contract; it is not inferred from arbitrary instance data.
 
@@ -184,7 +198,7 @@ Every input message is reasoned over independently. By default the result preser
 
 ## Supported SHACL pattern
 
-The prototype intentionally accepts one nested quantity mapping per shape graph:
+The prototype accepts one input mapping per shape graph. It can be a nested quantity:
 
 ```turtle
 ex:InputShape a sh:NodeShape ;
@@ -205,7 +219,39 @@ ex:InputQuantityShape a sh:NodeShape ;
   ] .
 ```
 
-An output shape uses a separate result path and a single target unit:
+Alternatively, a direct CDT literal property can enumerate the QUDT units whose UCUM
+codes are accepted by the trusted producer contract:
+
+```turtle
+@prefix cdt: <https://w3id.org/cdt/> .
+
+ex:InputShape a sh:NodeShape ;
+  sh:targetClass ex:Observation ;
+  sh:property [
+    sh:path ex:speed ;
+    sh:datatype cdt:speed ;
+    sh:unit unit:M-PER-SEC,
+      unit:KiloM-PER-HR,
+      unit:MI-PER-HR
+  ] .
+```
+
+The corresponding RDF can put the unit directly in the literal:
+
+```turtle
+ex:observation a ex:Observation ;
+  ex:speed "12 m/s"^^cdt:speed .
+```
+
+Generic `cdt:ucum` input uses the same pattern. A lexical form must contain a finite
+decimal/scientific-notation number, whitespace, and a UCUM code that matches a
+`qudt:ucumCode` on one of the `sh:unit` values. The shipped fixtures cover `m/s`, `km/h`,
+`[mi_i]/h`, `[ft_i]/s`, and `[kn_i]`. The N3 rule uses Eyeling's `dt:datatype`,
+`dt:lexicalForm`, `string:scrape`, and `log:dtlit` built-ins; malformed or unmapped values
+produce an `INVALID_CDT_LITERAL` diagnostic.
+
+An output shape uses a separate result path and a single target unit. For the direct speed
+example above, it can normalize to kilometres/hour:
 
 ```turtle
 ex:OutputShape a sh:NodeShape ;
@@ -219,15 +265,15 @@ ex:OutputQuantityShape a sh:NodeShape ;
   sh:property [
     sh:path qudt:numericValue ;
     sh:datatype xsd:decimal ;
-    sh:unit unit:M
+    sh:unit unit:KiloM-PER-HR
   ] ;
   sh:property [
     sh:path qudt:unit ;
-    sh:hasValue unit:M
+    sh:hasValue unit:KiloM-PER-HR
   ] .
 ```
 
-Only simple IRI paths are supported in version 0.1. General SHACL property paths, multiple independent quantities, lists of output units, and in-place graph replacement are future work.
+Only simple IRI paths are supported in version 0.1. General SHACL property paths, multiple independent quantities or direct literal properties, lists of output units, and in-place graph replacement are future work.
 
 ## Backward rule
 
@@ -280,7 +326,10 @@ SHACL OUT ─ infer() ─ target-specific Eyeling program
 RDF Message Stream ──────┴─ per-message backward conversion ─ RDF Message Stream
 ```
 
-The JavaScript layer performs graph construction and diagnostics. Eyeling performs the numerical entailment. This keeps the N3 rule generic while allowing RDFJS callers to control output paths and streaming behavior.
+The JavaScript layer performs planning, graph construction, and diagnostics. Eyeling
+performs numerical entailment and, for CDT input, lexical parsing and UCUM-unit matching.
+This keeps the N3 rule generic while allowing RDFJS callers to control output paths and
+streaming behavior.
 
 ## Diagnostics and safety properties
 
@@ -290,7 +339,8 @@ The engine reports per-message diagnostics for:
 - missing or non-IRI unit terms;
 - source units outside SHACL IN;
 - source units incompatible with the requested target;
-- absent Eyeling conversion results.
+- absent Eyeling conversion results; and
+- malformed CDT literals or UCUM codes that do not map to an allowed QUDT unit.
 
 A globally incompatible SHACL OUT throws `IncompatibleDimensionError` before stream processing begins.
 
@@ -303,7 +353,7 @@ background/     curated QUDT graph and generated combined N3 background
 rules/          generic backward N3 conversion rule
 src/            planner, compiler, stream engine, RDF helpers
 examples/       runnable SHACL/RDF Message example
-tests/          planning tests and 73-message conversion corpus
+tests/          planning tests, 73-message conversion corpus, and CDT literal fixtures
 scripts/        build, playground, and hook utilities
 playground/     zero-dependency browser playground source
 ```

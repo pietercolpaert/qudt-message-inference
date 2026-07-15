@@ -1,11 +1,13 @@
 import type { Quad, Term } from '@rdfjs/types';
 export type RdfMessage = readonly Quad[];
 export interface InputShapePlan {
+    readonly representation: 'qudt-quantity' | 'cdt-literal';
     readonly targetClasses: readonly string[];
     readonly quantityPath: string;
-    readonly numericValuePath: string;
-    readonly unitPath: string;
+    readonly numericValuePath?: string;
+    readonly unitPath?: string;
     readonly allowedUnits: ReadonlySet<string>;
+    readonly literalDatatypes: ReadonlySet<string>;
 }
 export interface OutputShapePlan {
     readonly targetClasses: readonly string[];
@@ -20,17 +22,19 @@ export interface QudtUnitDefinition {
     readonly multiplier: number;
     readonly offset: number;
     readonly symbol?: string;
+    readonly ucumCodes: readonly string[];
 }
 export interface PlannerSummary {
+    readonly inputRepresentation: 'qudt-quantity' | 'cdt-literal';
     readonly totalQudtUnits: number;
     readonly retainedQudtUnits: number;
     readonly sourceUnits: readonly string[];
     readonly retainedDimensions: readonly string[];
     readonly quantityPath: string;
-    readonly numericValuePath: string;
-    readonly unitPath: string;
+    readonly numericValuePath?: string;
+    readonly unitPath?: string;
 }
-export type DiagnosticCode = 'INCOMPATIBLE_DIMENSION' | 'MISSING_NUMERIC_VALUE' | 'MISSING_UNIT' | 'SOURCE_UNIT_NOT_ALLOWED' | 'UNKNOWN_SOURCE_UNIT' | 'NO_CONVERSION_RESULT';
+export type DiagnosticCode = 'INVALID_CDT_LITERAL' | 'INCOMPATIBLE_DIMENSION' | 'MISSING_NUMERIC_VALUE' | 'MISSING_UNIT' | 'SOURCE_UNIT_NOT_ALLOWED' | 'UNKNOWN_SOURCE_UNIT' | 'NO_CONVERSION_RESULT';
 export interface ConversionDiagnostic {
     readonly code: DiagnosticCode;
     readonly message: string;

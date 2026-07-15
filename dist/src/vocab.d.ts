@@ -43,6 +43,16 @@ export declare const QUDT: {
     readonly conversionOffset: "http://qudt.org/schema/qudt/conversionOffset";
     readonly hasDimensionVector: "http://qudt.org/schema/qudt/hasDimensionVector";
     readonly symbol: "http://qudt.org/schema/qudt/symbol";
+    readonly ucumCode: "http://qudt.org/schema/qudt/ucumCode";
+};
+export declare const CDT: {
+    readonly namespace: "http://w3id.org/lindt/custom_datatypes#";
+    readonly shortNamespace: "https://w3id.org/cdt/";
+    readonly ucum: "http://w3id.org/lindt/custom_datatypes#ucum";
+    readonly speed: "http://w3id.org/lindt/custom_datatypes#speed";
+    readonly shortUcum: "https://w3id.org/cdt/ucum";
+    readonly shortSpeed: "https://w3id.org/cdt/speed";
+    readonly supported: Set<string>;
 };
 export declare const PROV: {
     readonly wasDerivedFrom: "http://www.w3.org/ns/prov#wasDerivedFrom";
@@ -53,6 +63,13 @@ export declare const QCR: {
     readonly effectiveConversionOffset: "https://w3id.org/qudt-inference#effectiveConversionOffset";
     readonly convertedValue: "https://w3id.org/qudt-inference#convertedValue";
     readonly convertedNumericValue: "https://w3id.org/qudt-inference#convertedNumericValue";
+    readonly parsedCdtValue: "https://w3id.org/qudt-inference#parsedCdtValue";
+    readonly parsedSourceLiteral: "https://w3id.org/qudt-inference#parsedSourceLiteral";
+    readonly parsedSourceValue: "https://w3id.org/qudt-inference#parsedSourceValue";
+    readonly parsedSourceUnit: "https://w3id.org/qudt-inference#parsedSourceUnit";
+    readonly recognizedUcumCode: "https://w3id.org/qudt-inference#recognizedUcumCode";
+    readonly allowedCdtSourceUnit: "https://w3id.org/qudt-inference#allowedCdtSourceUnit";
+    readonly supportedCdtDatatype: "https://w3id.org/qudt-inference#supportedCdtDatatype";
     readonly convertedFromUnit: "https://w3id.org/qudt-inference#convertedFromUnit";
     readonly convertedToUnit: "https://w3id.org/qudt-inference#convertedToUnit";
     readonly conversionProfile: "https://w3id.org/qudt-inference#conversionProfile";

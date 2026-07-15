@@ -1,0 +1,27 @@
+{
+  "dimension": "cdt-ucum",
+  "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+  "caseCount": 2,
+  "cases": [
+    {
+      "observation": "https://example.org/cdt-ucum-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/FT-PER-SEC",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "100",
+      "expectedValue": "109.728",
+      "datatype": "https://w3id.org/cdt/ucum",
+      "property": "https://example.org/measurement",
+      "ucumCode": "[ft_i]/s"
+    },
+    {
+      "observation": "https://example.org/cdt-ucum-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KNOT",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "12",
+      "expectedValue": "22.224",
+      "datatype": "https://w3id.org/cdt/ucum",
+      "property": "https://example.org/measurement",
+      "ucumCode": "[kn_i]"
+    }
+  ]
+}

@@ -13,6 +13,26 @@ function compileTriggerRule(input: InputShapePlan, output: OutputShapePlan): str
   const classGuard = input.targetClasses.length
     ? input.targetClasses.map((classIri) => `?root ${iri(RDF.type)} ${iri(classIri)} .`).join('\n  ')
     : '';
+  if (input.representation === 'cdt-literal') {
+    return `
+{
+  ${classGuard}
+  ?root ${iri(input.quantityPath)} ?sourceLiteral .
+  (?sourceLiteral ?sourceDatatype) ${iri(QCR.parsedCdtValue)} (?sourceValue ?sourceUnit) .
+  (?sourceValue ?sourceUnit ${iri(output.targetUnit)}) ${iri(QCR.convertedValue)} ?targetValue .
+}
+=>
+{
+  ?root ${iri(QCR.parsedSourceLiteral)} ?sourceLiteral ;
+    ${iri(QCR.parsedSourceValue)} ?sourceValue ;
+    ${iri(QCR.parsedSourceUnit)} ?sourceUnit ;
+    ${iri(QCR.convertedNumericValue)} ?targetValue .
+} .
+`;
+  }
+  if (!input.numericValuePath || !input.unitPath) {
+    throw new Error('A QUDT quantity input plan requires numeric-value and unit paths.');
+  }
   return `
 {
   ${classGuard}
@@ -35,11 +55,23 @@ export function compileEyelingProgram(options: {
   readonly input: InputShapePlan;
   readonly output: OutputShapePlan;
 }): string {
+  const cdtFacts = options.input.representation === 'cdt-literal'
+    ? [
+        ...[...options.input.literalDatatypes].sort().map(
+          (datatype) => `${iri(datatype)} ${iri(QCR.supportedCdtDatatype)} true .`,
+        ),
+        ...options.units
+          .filter((unit) => options.input.allowedUnits.has(unit.iri))
+          .sort((a, b) => a.iri.localeCompare(b.iri))
+          .map((unit) => `${iri(unit.iri)} ${iri(QCR.allowedCdtSourceUnit)} true .`),
+      ].join('\n')
+    : '';
   return [
     options.backwardRule.trim(),
     '',
     '# Effective QUDT facts selected by the SHACL planner.',
     options.index.serializeEffectiveFacts(options.units).trim(),
+    cdtFacts ? '\n# CDT datatypes and source units selected by SHACL.\n' + cdtFacts : '',
     '',
     '# Forward trigger compiled from SHACL IN and SHACL OUT.',
     compileTriggerRule(options.input, options.output).trim(),

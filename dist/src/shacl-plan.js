@@ -40,12 +40,15 @@ function collectUnitTerms(quads, numericShape, unitShape) {
     }
     return [...unitMap.values()];
 }
-function compileSkeleton(shapes) {
-    const nodeShapes = (0, graph_1.subjects)(shapes, vocab_1.RDF.type).filter((subject) => shapes.some((quad) => quad.subject.termType === subject.termType &&
+function findNodeShapes(shapes) {
+    return (0, graph_1.subjects)(shapes, vocab_1.RDF.type).filter((subject) => shapes.some((quad) => quad.subject.termType === subject.termType &&
         quad.subject.value === subject.value &&
         quad.predicate.value === vocab_1.RDF.type &&
         quad.object.termType === 'NamedNode' &&
         quad.object.value === vocab_1.SH.NodeShape));
+}
+function compileSkeleton(shapes) {
+    const nodeShapes = findNodeShapes(shapes);
     const candidates = [];
     for (const rootShape of nodeShapes) {
         const targetClasses = (0, graph_1.objects)(shapes, rootShape, vocab_1.SH.targetClass)
@@ -81,6 +84,44 @@ function compileSkeleton(shapes) {
     return candidates[0];
 }
 function compileInputShape(shapes) {
+    const literalCandidates = [];
+    for (const rootShape of findNodeShapes(shapes)) {
+        const targetClasses = (0, graph_1.objects)(shapes, rootShape, vocab_1.SH.targetClass)
+            .filter((term) => term.termType === 'NamedNode')
+            .map((term) => term.value);
+        for (const propertyShape of (0, graph_1.objects)(shapes, rootShape, vocab_1.SH.property)) {
+            if ((0, graph_1.firstObject)(shapes, propertyShape, vocab_1.SH.node))
+                continue;
+            const literalDatatypes = (0, graph_1.objects)(shapes, propertyShape, vocab_1.SH.datatype)
+                .filter((term) => term.termType === 'NamedNode' && vocab_1.CDT.supported.has(term.value))
+                .map((term) => term.value);
+            if (literalDatatypes.length === 0)
+                continue;
+            const unitTerms = (0, graph_1.objects)(shapes, propertyShape, vocab_1.SH.unit);
+            const allowedUnits = new Set();
+            for (const term of unitTerms) {
+                if (term.termType !== 'NamedNode') {
+                    throw new Error('CDT literal input sh:unit values must be QUDT unit IRIs.');
+                }
+                allowedUnits.add(term.value);
+            }
+            if (allowedUnits.size === 0) {
+                throw new Error('A CDT literal input shape must enumerate its possible QUDT source units with sh:unit.');
+            }
+            literalCandidates.push({
+                representation: 'cdt-literal',
+                targetClasses,
+                quantityPath: requireNamedNode((0, graph_1.firstObject)(shapes, propertyShape, vocab_1.SH.path), 'The CDT literal sh:path'),
+                allowedUnits,
+                literalDatatypes: new Set(literalDatatypes),
+            });
+        }
+    }
+    if (literalCandidates.length > 1) {
+        throw new Error(`Found ${literalCandidates.length} supported CDT literal mappings. Version 0.1 accepts exactly one mapping per SHACL graph.`);
+    }
+    if (literalCandidates.length === 1)
+        return literalCandidates[0];
     const skeleton = compileSkeleton(shapes);
     const allowedUnits = new Set();
     for (const term of skeleton.unitTerms) {
@@ -93,11 +134,13 @@ function compileInputShape(shapes) {
         throw new Error('SHACL IN must enumerate possible source units with sh:in, sh:hasValue, or sh:unit so that the background can be pruned safely.');
     }
     return {
+        representation: 'qudt-quantity',
         targetClasses: skeleton.targetClasses,
         quantityPath: skeleton.quantityPath,
         numericValuePath: skeleton.numericValuePath,
         unitPath: skeleton.unitPath,
         allowedUnits,
+        literalDatatypes: new Set(),
     };
 }
 function compileOutputShape(shapes) {

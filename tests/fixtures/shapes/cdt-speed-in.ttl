@@ -1,0 +1,16 @@
+@prefix cdt: <http://w3id.org/lindt/custom_datatypes#> .
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+ex:CdtSpeedInputShape a sh:NodeShape ;
+  sh:targetClass ex:Observation ;
+  sh:property [
+    sh:path ex:speed ;
+    sh:datatype cdt:speed ;
+    sh:unit unit:M-PER-SEC,
+      unit:KiloM-PER-HR,
+      unit:MI-PER-HR,
+      unit:FT-PER-SEC,
+      unit:KNOT
+  ] .

@@ -1,0 +1,16 @@
+@version "1.2-messages" .
+@prefix cdt: <http://w3id.org/lindt/custom_datatypes#> .
+@prefix ex: <https://example.org/> .
+
+ex:cdt-speed-001 a ex:Observation ;
+  ex:speed "1.2e1 m/s"^^cdt:speed .
+
+@message .
+
+ex:cdt-speed-002 a ex:Observation ;
+  ex:speed "90 km/h"^^cdt:speed .
+
+@message .
+
+ex:cdt-speed-003 a ex:Observation ;
+  ex:speed "60 [mi_i]/h"^^cdt:speed .

@@ -32,12 +32,16 @@ class QudtUnitIndex {
                 ? numericObject(offsetTerm, `${subject.value} qudt:conversionOffset`)
                 : 0;
             const symbol = (0, graph_1.objects)(backgroundKnowledge, subject, vocab_1.QUDT.symbol).find((term) => term.termType === 'Literal')?.value;
+            const ucumCodes = (0, graph_1.objects)(backgroundKnowledge, subject, vocab_1.QUDT.ucumCode)
+                .filter((term) => term.termType === 'Literal')
+                .map((term) => term.value);
             map.set(subject.value, {
                 iri: subject.value,
                 dimensionVector: dimension.value,
                 multiplier,
                 offset,
                 symbol,
+                ucumCodes,
             });
         }
         this.unitsByIri = map;
@@ -70,6 +74,7 @@ class QudtUnitIndex {
             sourceUnits,
             sourceDimensions,
             summary: {
+                inputRepresentation: input.representation,
                 totalQudtUnits: this.size,
                 retainedQudtUnits: retainedUnits.length,
                 sourceUnits: sourceUnits.map((unit) => unit.iri).sort(),
@@ -84,6 +89,11 @@ class QudtUnitIndex {
         const lines = [];
         for (const unit of [...units].sort((a, b) => a.iri.localeCompare(b.iri))) {
             lines.push(`${(0, rdf_1.iri)(unit.iri)} ${(0, rdf_1.iri)(vocab_1.QUDT.hasDimensionVector)} ${(0, rdf_1.iri)(unit.dimensionVector)} ;`, `  ${(0, rdf_1.iri)(vocab_1.QUDT.conversionMultiplier)} "${unit.multiplier}"^^<http://www.w3.org/2001/XMLSchema#decimal> ;`, `  ${(0, rdf_1.iri)(vocab_1.QCR.effectiveConversionMultiplier)} "${unit.multiplier}"^^<http://www.w3.org/2001/XMLSchema#decimal> ;`, `  ${(0, rdf_1.iri)(vocab_1.QCR.effectiveConversionOffset)} "${unit.offset}"^^<http://www.w3.org/2001/XMLSchema#decimal> .`, '');
+            for (const code of [...unit.ucumCodes].sort()) {
+                lines.push(`${(0, rdf_1.iri)(unit.iri)} ${(0, rdf_1.iri)(vocab_1.QCR.recognizedUcumCode)} "${(0, rdf_1.escapeLiteral)(code)}" .`);
+            }
+            if (unit.ucumCodes.length > 0)
+                lines.push('');
         }
         return lines.join('\n');
     }

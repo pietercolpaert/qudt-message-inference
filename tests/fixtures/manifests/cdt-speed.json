@@ -1,0 +1,37 @@
+{
+  "dimension": "cdt-speed",
+  "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+  "caseCount": 3,
+  "cases": [
+    {
+      "observation": "https://example.org/cdt-speed-001",
+      "sourceUnit": "http://qudt.org/vocab/unit/M-PER-SEC",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "1.2e1",
+      "expectedValue": "43.2",
+      "datatype": "http://w3id.org/lindt/custom_datatypes#speed",
+      "property": "https://example.org/speed",
+      "ucumCode": "m/s"
+    },
+    {
+      "observation": "https://example.org/cdt-speed-002",
+      "sourceUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "90",
+      "expectedValue": "90",
+      "datatype": "http://w3id.org/lindt/custom_datatypes#speed",
+      "property": "https://example.org/speed",
+      "ucumCode": "km/h"
+    },
+    {
+      "observation": "https://example.org/cdt-speed-003",
+      "sourceUnit": "http://qudt.org/vocab/unit/MI-PER-HR",
+      "targetUnit": "http://qudt.org/vocab/unit/KiloM-PER-HR",
+      "sourceValue": "60",
+      "expectedValue": "96.56064",
+      "datatype": "http://w3id.org/lindt/custom_datatypes#speed",
+      "property": "https://example.org/speed",
+      "ucumCode": "[mi_i]/h"
+    }
+  ]
+}

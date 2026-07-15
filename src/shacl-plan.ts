@@ -1,7 +1,7 @@
 import type { Quad, Term } from '@rdfjs/types';
 import { firstObject, objects, readRdfList, subjects, termKey } from './graph';
 import type { InputShapePlan, OutputShapePlan } from './types';
-import { NUMERIC_DATATYPES, QUDT, RDF, SH } from './vocab';
+import { CDT, NUMERIC_DATATYPES, QUDT, RDF, SH } from './vocab';
 
 interface QuantityShapeSkeleton {
   readonly targetClasses: readonly string[];
@@ -53,8 +53,8 @@ function collectUnitTerms(
   return [...unitMap.values()];
 }
 
-function compileSkeleton(shapes: readonly Quad[]): QuantityShapeSkeleton {
-  const nodeShapes = subjects(
+function findNodeShapes(shapes: readonly Quad[]): Term[] {
+  return subjects(
     shapes,
     RDF.type,
     // rdf:type comparisons use term identity, so locate by value below.
@@ -68,6 +68,10 @@ function compileSkeleton(shapes: readonly Quad[]): QuantityShapeSkeleton {
         quad.object.value === SH.NodeShape,
     ),
   );
+}
+
+function compileSkeleton(shapes: readonly Quad[]): QuantityShapeSkeleton {
+  const nodeShapes = findNodeShapes(shapes);
 
   const candidates: QuantityShapeSkeleton[] = [];
 
@@ -127,6 +131,51 @@ function compileSkeleton(shapes: readonly Quad[]): QuantityShapeSkeleton {
 }
 
 export function compileInputShape(shapes: readonly Quad[]): InputShapePlan {
+  const literalCandidates: InputShapePlan[] = [];
+  for (const rootShape of findNodeShapes(shapes)) {
+    const targetClasses = objects(shapes, rootShape, SH.targetClass)
+      .filter((term): term is Extract<Term, { termType: 'NamedNode' }> => term.termType === 'NamedNode')
+      .map((term) => term.value);
+    for (const propertyShape of objects(shapes, rootShape, SH.property)) {
+      if (firstObject(shapes, propertyShape, SH.node)) continue;
+      const literalDatatypes = objects(shapes, propertyShape, SH.datatype)
+        .filter((term): term is Extract<Term, { termType: 'NamedNode' }> =>
+          term.termType === 'NamedNode' && CDT.supported.has(term.value),
+        )
+        .map((term) => term.value);
+      if (literalDatatypes.length === 0) continue;
+      const unitTerms = objects(shapes, propertyShape, SH.unit);
+      const allowedUnits = new Set<string>();
+      for (const term of unitTerms) {
+        if (term.termType !== 'NamedNode') {
+          throw new Error('CDT literal input sh:unit values must be QUDT unit IRIs.');
+        }
+        allowedUnits.add(term.value);
+      }
+      if (allowedUnits.size === 0) {
+        throw new Error(
+          'A CDT literal input shape must enumerate its possible QUDT source units with sh:unit.',
+        );
+      }
+      literalCandidates.push({
+        representation: 'cdt-literal',
+        targetClasses,
+        quantityPath: requireNamedNode(
+          firstObject(shapes, propertyShape, SH.path),
+          'The CDT literal sh:path',
+        ),
+        allowedUnits,
+        literalDatatypes: new Set(literalDatatypes),
+      });
+    }
+  }
+  if (literalCandidates.length > 1) {
+    throw new Error(
+      `Found ${literalCandidates.length} supported CDT literal mappings. Version 0.1 accepts exactly one mapping per SHACL graph.`,
+    );
+  }
+  if (literalCandidates.length === 1) return literalCandidates[0];
+
   const skeleton = compileSkeleton(shapes);
   const allowedUnits = new Set<string>();
   for (const term of skeleton.unitTerms) {
@@ -143,11 +192,13 @@ export function compileInputShape(shapes: readonly Quad[]): InputShapePlan {
     );
   }
   return {
+    representation: 'qudt-quantity',
     targetClasses: skeleton.targetClasses,
     quantityPath: skeleton.quantityPath,
     numericValuePath: skeleton.numericValuePath,
     unitPath: skeleton.unitPath,
     allowedUnits,
+    literalDatatypes: new Set(),
   };
 }
 

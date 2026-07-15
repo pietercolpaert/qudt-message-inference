@@ -13,6 +13,26 @@ function compileTriggerRule(input, output) {
     const classGuard = input.targetClasses.length
         ? input.targetClasses.map((classIri) => `?root ${(0, rdf_1.iri)(vocab_1.RDF.type)} ${(0, rdf_1.iri)(classIri)} .`).join('\n  ')
         : '';
+    if (input.representation === 'cdt-literal') {
+        return `
+{
+  ${classGuard}
+  ?root ${(0, rdf_1.iri)(input.quantityPath)} ?sourceLiteral .
+  (?sourceLiteral ?sourceDatatype) ${(0, rdf_1.iri)(vocab_1.QCR.parsedCdtValue)} (?sourceValue ?sourceUnit) .
+  (?sourceValue ?sourceUnit ${(0, rdf_1.iri)(output.targetUnit)}) ${(0, rdf_1.iri)(vocab_1.QCR.convertedValue)} ?targetValue .
+}
+=>
+{
+  ?root ${(0, rdf_1.iri)(vocab_1.QCR.parsedSourceLiteral)} ?sourceLiteral ;
+    ${(0, rdf_1.iri)(vocab_1.QCR.parsedSourceValue)} ?sourceValue ;
+    ${(0, rdf_1.iri)(vocab_1.QCR.parsedSourceUnit)} ?sourceUnit ;
+    ${(0, rdf_1.iri)(vocab_1.QCR.convertedNumericValue)} ?targetValue .
+} .
+`;
+    }
+    if (!input.numericValuePath || !input.unitPath) {
+        throw new Error('A QUDT quantity input plan requires numeric-value and unit paths.');
+    }
     return `
 {
   ${classGuard}
@@ -28,11 +48,21 @@ function compileTriggerRule(input, output) {
 `;
 }
 function compileEyelingProgram(options) {
+    const cdtFacts = options.input.representation === 'cdt-literal'
+        ? [
+            ...[...options.input.literalDatatypes].sort().map((datatype) => `${(0, rdf_1.iri)(datatype)} ${(0, rdf_1.iri)(vocab_1.QCR.supportedCdtDatatype)} true .`),
+            ...options.units
+                .filter((unit) => options.input.allowedUnits.has(unit.iri))
+                .sort((a, b) => a.iri.localeCompare(b.iri))
+                .map((unit) => `${(0, rdf_1.iri)(unit.iri)} ${(0, rdf_1.iri)(vocab_1.QCR.allowedCdtSourceUnit)} true .`),
+        ].join('\n')
+        : '';
     return [
         options.backwardRule.trim(),
         '',
         '# Effective QUDT facts selected by the SHACL planner.',
         options.index.serializeEffectiveFacts(options.units).trim(),
+        cdtFacts ? '\n# CDT datatypes and source units selected by SHACL.\n' + cdtFacts : '',
         '',
         '# Forward trigger compiled from SHACL IN and SHACL OUT.',
         compileTriggerRule(options.input, options.output).trim(),

@@ -90,26 +90,31 @@ unit:WK a qudt:Unit ;
 unit:M-PER-SEC a qudt:Unit ;
   qudt:hasDimensionVector qkdv:A0E0L1I0M0H0T-1D0 ;
   qudt:conversionMultiplier "1"^^xsd:decimal ;
+  qudt:ucumCode "m/s"^^qudt:UCUMcs ;
   qudt:symbol "m/s" .
 
 unit:KiloM-PER-HR a qudt:Unit ;
   qudt:hasDimensionVector qkdv:A0E0L1I0M0H0T-1D0 ;
   qudt:conversionMultiplier "0.2777777777777777777777777777777778"^^xsd:decimal ;
+  qudt:ucumCode "km/h"^^qudt:UCUMcs ;
   qudt:symbol "km/h" .
 
 unit:MI-PER-HR a qudt:Unit ;
   qudt:hasDimensionVector qkdv:A0E0L1I0M0H0T-1D0 ;
   qudt:conversionMultiplier "0.44704"^^xsd:decimal ;
+  qudt:ucumCode "[mi_i]/h"^^qudt:UCUMcs ;
   qudt:symbol "mph" .
 
 unit:FT-PER-SEC a qudt:Unit ;
   qudt:hasDimensionVector qkdv:A0E0L1I0M0H0T-1D0 ;
   qudt:conversionMultiplier "0.3048"^^xsd:decimal ;
+  qudt:ucumCode "[ft_i]/s"^^qudt:UCUMcs ;
   qudt:symbol "ft/s" .
 
 unit:KNOT a qudt:Unit ;
   qudt:hasDimensionVector qkdv:A0E0L1I0M0H0T-1D0 ;
   qudt:conversionMultiplier "0.5144444444444444444444444444444444"^^xsd:decimal ;
+  qudt:ucumCode "[kn_i]"^^qudt:UCUMcs ;
   qudt:symbol "kn" .
 
 unit:KiloGM a qudt:Unit ;

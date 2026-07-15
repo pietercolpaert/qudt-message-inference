@@ -1,0 +1,11 @@
+@version "1.2-messages" .
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix ex: <https://example.org/> .
+
+ex:cdt-ucum-001 a ex:Observation ;
+  ex:measurement "100 [ft_i]/s"^^cdt:ucum .
+
+@message .
+
+ex:cdt-ucum-002 a ex:Observation ;
+  ex:measurement "12 [kn_i]"^^cdt:ucum .

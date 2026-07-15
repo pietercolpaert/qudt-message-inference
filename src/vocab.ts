@@ -46,6 +46,22 @@ export const QUDT = {
   conversionOffset: 'http://qudt.org/schema/qudt/conversionOffset',
   hasDimensionVector: 'http://qudt.org/schema/qudt/hasDimensionVector',
   symbol: 'http://qudt.org/schema/qudt/symbol',
+  ucumCode: 'http://qudt.org/schema/qudt/ucumCode',
+} as const;
+
+export const CDT = {
+  namespace: 'http://w3id.org/lindt/custom_datatypes#',
+  shortNamespace: 'https://w3id.org/cdt/',
+  ucum: 'http://w3id.org/lindt/custom_datatypes#ucum',
+  speed: 'http://w3id.org/lindt/custom_datatypes#speed',
+  shortUcum: 'https://w3id.org/cdt/ucum',
+  shortSpeed: 'https://w3id.org/cdt/speed',
+  supported: new Set([
+    'http://w3id.org/lindt/custom_datatypes#ucum',
+    'http://w3id.org/lindt/custom_datatypes#speed',
+    'https://w3id.org/cdt/ucum',
+    'https://w3id.org/cdt/speed',
+  ]),
 } as const;
 
 export const PROV = {
@@ -58,6 +74,13 @@ export const QCR = {
   effectiveConversionOffset: 'https://w3id.org/qudt-inference#effectiveConversionOffset',
   convertedValue: 'https://w3id.org/qudt-inference#convertedValue',
   convertedNumericValue: 'https://w3id.org/qudt-inference#convertedNumericValue',
+  parsedCdtValue: 'https://w3id.org/qudt-inference#parsedCdtValue',
+  parsedSourceLiteral: 'https://w3id.org/qudt-inference#parsedSourceLiteral',
+  parsedSourceValue: 'https://w3id.org/qudt-inference#parsedSourceValue',
+  parsedSourceUnit: 'https://w3id.org/qudt-inference#parsedSourceUnit',
+  recognizedUcumCode: 'https://w3id.org/qudt-inference#recognizedUcumCode',
+  allowedCdtSourceUnit: 'https://w3id.org/qudt-inference#allowedCdtSourceUnit',
+  supportedCdtDatatype: 'https://w3id.org/qudt-inference#supportedCdtDatatype',
   convertedFromUnit: 'https://w3id.org/qudt-inference#convertedFromUnit',
   convertedToUnit: 'https://w3id.org/qudt-inference#convertedToUnit',
   conversionProfile: 'https://w3id.org/qudt-inference#conversionProfile',

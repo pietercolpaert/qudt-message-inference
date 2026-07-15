@@ -1,0 +1,16 @@
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix ex: <https://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+ex:CdtUcumInputShape a sh:NodeShape ;
+  sh:targetClass ex:Observation ;
+  sh:property [
+    sh:path ex:measurement ;
+    sh:datatype cdt:ucum ;
+    sh:unit unit:M-PER-SEC,
+      unit:KiloM-PER-HR,
+      unit:MI-PER-HR,
+      unit:FT-PER-SEC,
+      unit:KNOT
+  ] .

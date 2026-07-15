@@ -143,14 +143,183 @@ export class QudtMessageInferenceEngine {
 
     for await (const message of asAsyncMessages(messages)) {
       const derived: Quad[] = [];
+      const retainedPredicates = new Set<string>([
+        QCR.convertedNumericValue,
+        QCR.parsedSourceLiteral,
+        QCR.parsedSourceValue,
+        QCR.parsedSourceUnit,
+      ]);
       for await (const quad of reasonRdfJs({ quads: [...message], n3: compiled.program })) {
-        if (quad.predicate.value === QCR.convertedNumericValue) derived.push(quad);
+        if (retainedPredicates.has(quad.predicate.value)) derived.push(quad);
       }
 
       const outputQuads: Quad[] = includeInput ? [...message] : [];
       const conversions: ConversionRecord[] = [];
       const diagnostics: ConversionDiagnostic[] = [];
       let outputCounter = 0;
+
+      const appendConversion = (
+        root: Term,
+        sourceQuantity: Term,
+        sourceUnitTerm: Extract<Term, { termType: 'NamedNode' }>,
+        sourceNumber: number,
+        targetNumber: number,
+      ): void => {
+        const outputQuantity = DataFactory.blankNode(
+          `converted-${messageIndex}-${outputCounter++}`,
+        );
+        const targetLiteral = DataFactory.literal(
+          Number(targetNumber.toPrecision(15)).toString(),
+          DataFactory.namedNode(XSD.decimal),
+        );
+        outputQuads.push(
+          createQuad(
+            root,
+            DataFactory.namedNode(compiled.outputPlan.quantityPath),
+            outputQuantity,
+          ),
+          createQuad(
+            outputQuantity,
+            DataFactory.namedNode(RDF.type),
+            DataFactory.namedNode(QUDT.QuantityValue),
+          ),
+          createQuad(
+            outputQuantity,
+            DataFactory.namedNode(compiled.outputPlan.numericValuePath),
+            targetLiteral,
+          ),
+          createQuad(
+            outputQuantity,
+            DataFactory.namedNode(compiled.outputPlan.unitPath),
+            DataFactory.namedNode(compiled.outputPlan.targetUnit),
+          ),
+        );
+        if (emitProvenance) {
+          outputQuads.push(
+            createQuad(
+              outputQuantity,
+              DataFactory.namedNode(PROV.wasDerivedFrom),
+              sourceQuantity,
+            ),
+            createQuad(
+              outputQuantity,
+              DataFactory.namedNode(QCR.convertedFromUnit),
+              sourceUnitTerm,
+            ),
+            createQuad(
+              outputQuantity,
+              DataFactory.namedNode(QCR.convertedToUnit),
+              DataFactory.namedNode(compiled.outputPlan.targetUnit),
+            ),
+            createQuad(
+              outputQuantity,
+              DataFactory.namedNode(QCR.conversionProfile),
+              DataFactory.namedNode(QCR.affineQudtProfile),
+            ),
+          );
+        }
+        conversions.push({
+          root,
+          sourceQuantity,
+          outputQuantity,
+          sourceUnit: sourceUnitTerm.value,
+          targetUnit: compiled.outputPlan.targetUnit,
+          sourceValue: sourceNumber,
+          targetValue: targetNumber,
+        });
+      };
+
+      if (this.inputPlan.representation === 'cdt-literal') {
+        for (const sourceQuad of message) {
+          if (sourceQuad.predicate.value !== this.inputPlan.quantityPath) continue;
+          const root = sourceQuad.subject;
+          const sourceLiteral = sourceQuad.object;
+          if (
+            sourceLiteral.termType !== 'Literal' ||
+            !this.inputPlan.literalDatatypes.has(sourceLiteral.datatype.value)
+          ) {
+            diagnostics.push({
+              code: 'INVALID_CDT_LITERAL',
+              message: 'The source value is not a supported CDT typed literal.',
+              sourceNode: root,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+
+          const parsedLiteral = derived.some(
+            (quad) =>
+              sameTerm(quad.subject, root) &&
+              quad.predicate.value === QCR.parsedSourceLiteral &&
+              sameTerm(quad.object, sourceLiteral),
+          );
+          const sourceValueTerm = findObjects(derived, root, QCR.parsedSourceValue)[0];
+          const sourceUnitTerm = findObjects(derived, root, QCR.parsedSourceUnit)[0];
+          const resultTerm = findObjects(derived, root, QCR.convertedNumericValue)[0];
+          if (!parsedLiteral || !sourceValueTerm || !sourceUnitTerm || !resultTerm) {
+            diagnostics.push({
+              code: 'INVALID_CDT_LITERAL',
+              message:
+                'Eyeling could not parse the CDT lexical form or map its UCUM code to an allowed QUDT unit.',
+              sourceNode: root,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+          if (sourceUnitTerm.termType !== 'NamedNode') {
+            diagnostics.push({
+              code: 'UNKNOWN_SOURCE_UNIT',
+              message: 'The UCUM code did not resolve to a QUDT unit IRI.',
+              sourceNode: root,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+          if (!this.inputPlan.allowedUnits.has(sourceUnitTerm.value)) {
+            diagnostics.push({
+              code: 'SOURCE_UNIT_NOT_ALLOWED',
+              message: `Source unit ${sourceUnitTerm.value} is outside the trusted SHACL input contract.`,
+              sourceNode: root,
+              sourceUnit: sourceUnitTerm.value,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+          if (!compatible.has(sourceUnitTerm.value)) {
+            diagnostics.push({
+              code: 'INCOMPATIBLE_DIMENSION',
+              message: `Source unit ${sourceUnitTerm.value} is not dimensionally compatible with ${compiled.outputPlan.targetUnit}.`,
+              sourceNode: root,
+              sourceUnit: sourceUnitTerm.value,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+          const sourceNumber = numericValue(sourceValueTerm);
+          const targetNumber = numericValue(resultTerm);
+          if (sourceNumber === undefined || targetNumber === undefined) {
+            diagnostics.push({
+              code: 'NO_CONVERSION_RESULT',
+              message: 'Eyeling returned a non-numeric CDT parse or conversion result.',
+              sourceNode: root,
+              sourceUnit: sourceUnitTerm.value,
+              targetUnit: compiled.outputPlan.targetUnit,
+            });
+            continue;
+          }
+          appendConversion(root, root, sourceUnitTerm, sourceNumber, targetNumber);
+        }
+
+        yield { messageIndex, quads: outputQuads, conversions, diagnostics };
+        messageIndex += 1;
+        continue;
+      }
+
+      const numericValuePath = this.inputPlan.numericValuePath;
+      const unitPath = this.inputPlan.unitPath;
+      if (!numericValuePath || !unitPath) {
+        throw new Error('A QUDT quantity input plan requires numeric-value and unit paths.');
+      }
 
       const sourceQuantities = new Map<string, Term>();
       for (const quad of message) {
@@ -160,8 +329,8 @@ export class QudtMessageInferenceEngine {
       }
 
       for (const sourceQuantity of sourceQuantities.values()) {
-        const sourceUnitTerm = findObjects(message, sourceQuantity, this.inputPlan.unitPath)[0];
-        const sourceValueTerm = findObjects(message, sourceQuantity, this.inputPlan.numericValuePath)[0];
+        const sourceUnitTerm = findObjects(message, sourceQuantity, unitPath)[0];
+        const sourceValueTerm = findObjects(message, sourceQuantity, numericValuePath)[0];
         if (!sourceUnitTerm) {
           diagnostics.push({
             code: 'MISSING_UNIT',
@@ -249,68 +418,7 @@ export class QudtMessageInferenceEngine {
 
         const roots = findSubjects(message, this.inputPlan.quantityPath, sourceQuantity);
         for (const root of roots) {
-          const outputQuantity = DataFactory.blankNode(
-            `converted-${messageIndex}-${outputCounter++}`,
-          );
-          const targetLiteral = DataFactory.literal(
-            Number(targetNumber.toPrecision(15)).toString(),
-            DataFactory.namedNode(XSD.decimal),
-          );
-          outputQuads.push(
-            createQuad(
-              root,
-              DataFactory.namedNode(compiled.outputPlan.quantityPath),
-              outputQuantity,
-            ),
-            createQuad(
-              outputQuantity,
-              DataFactory.namedNode(RDF.type),
-              DataFactory.namedNode(QUDT.QuantityValue),
-            ),
-            createQuad(
-              outputQuantity,
-              DataFactory.namedNode(compiled.outputPlan.numericValuePath),
-              targetLiteral,
-            ),
-            createQuad(
-              outputQuantity,
-              DataFactory.namedNode(compiled.outputPlan.unitPath),
-              DataFactory.namedNode(compiled.outputPlan.targetUnit),
-            ),
-          );
-          if (emitProvenance) {
-            outputQuads.push(
-              createQuad(
-                outputQuantity,
-                DataFactory.namedNode(PROV.wasDerivedFrom),
-                sourceQuantity,
-              ),
-              createQuad(
-                outputQuantity,
-                DataFactory.namedNode(QCR.convertedFromUnit),
-                sourceUnitTerm,
-              ),
-              createQuad(
-                outputQuantity,
-                DataFactory.namedNode(QCR.convertedToUnit),
-                DataFactory.namedNode(compiled.outputPlan.targetUnit),
-              ),
-              createQuad(
-                outputQuantity,
-                DataFactory.namedNode(QCR.conversionProfile),
-                DataFactory.namedNode(QCR.affineQudtProfile),
-              ),
-            );
-          }
-          conversions.push({
-            root,
-            sourceQuantity,
-            outputQuantity,
-            sourceUnit: sourceUnitTerm.value,
-            targetUnit: compiled.outputPlan.targetUnit,
-            sourceValue: sourceNumber,
-            targetValue: targetNumber,
-          });
+          appendConversion(root, sourceQuantity, sourceUnitTerm, sourceNumber, targetNumber);
         }
       }
 
