@@ -7,6 +7,7 @@
   "type": "commonjs",
   "files": [
     "dist/src/",
+    "dist/playground/",
     "rules/",
     "background/qudt-conversion-background.n3",
     "README.md",
@@ -14,10 +15,13 @@
   ],
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "build": "npm run clean --silent && tsc -p tsconfig.json",
+    "build": "npm run clean --silent && tsc -p tsconfig.json && node dist/scripts/build-playground.js",
     "test": "npm run build --silent && node --test dist/tests/*.test.js",
     "example": "npm run build --silent && node dist/examples/normalize-length/run.js",
-    "build:background": "npm run build --silent && node dist/scripts/build-background.js"
+    "playground": "npm run build --silent && node dist/scripts/serve-playground.js",
+    "build:background": "npm run build --silent && node dist/scripts/build-background.js",
+    "setup:hooks": "node scripts/install-git-hooks.cjs",
+    "prepare": "npm run setup:hooks --silent"
   },
   "dependencies": {
     "@rdfjs/types": "^2.0.1",

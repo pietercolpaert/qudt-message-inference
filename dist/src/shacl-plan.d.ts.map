@@ -1,0 +1,1 @@
+{"version":3,"file":"shacl-plan.d.ts","sourceRoot":"","sources":["../../src/shacl-plan.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,IAAI,EAAQ,MAAM,cAAc,CAAC;AAE/C,OAAO,KAAK,EAAE,cAAc,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AA8H/D,wBAAgB,iBAAiB,CAAC,MAAM,EAAE,SAAS,IAAI,EAAE,GAAG,cAAc,CAuBzE;AAED,wBAAgB,kBAAkB,CAAC,MAAM,EAAE,SAAS,IAAI,EAAE,GAAG,eAAe,CAiB3E"}

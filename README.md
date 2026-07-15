@@ -37,6 +37,22 @@ npm install
 npm test
 ```
 
+## Browser playground
+
+The static [QUDT unit conversion playground](https://pietercolpaert.github.io/qudt-message-inference/)
+contains a selectable dropdown for all 73 test cases. Values can be edited in the browser,
+and the page shows the QUDT affine calculation together with input and normalized RDF.
+
+Run it locally without adding a web-server dependency:
+
+```bash
+npm run playground
+```
+
+The build generates `dist/playground/` from the JSON manifests and QUDT metadata. GitHub
+Pages deploys that committed artifact from `main`; set the repository's Pages source to
+**GitHub Actions** before the first deployment.
+
 The test corpus contains **73 RDF Messages using 73 curated QUDT units across 13 dimensions**:
 
 | Dimension | Target unit | Cases |
@@ -232,8 +248,18 @@ rules/          generic backward N3 conversion rule
 src/            planner, compiler, stream engine, RDF helpers
 examples/       runnable SHACL/RDF Message example
 tests/          planning tests and 73-message conversion corpus
-scripts/        combined-background generator
+scripts/        build, playground, and hook utilities
+playground/     zero-dependency browser playground source
 ```
+
+## Development hooks and CI
+
+`npm install` configures `.githooks/` as the repository hook path. The pre-commit hook runs
+`npm run build` and stages `dist/`, ensuring every commit carries the generated build that
+GitHub Pages publishes. Run `npm run setup:hooks` to configure the hook without reinstalling.
+
+The `Tests` GitHub Actions workflow installs with `npm ci` on Node.js 24 and runs `npm test`
+for pushes to `main`, pull requests, and manual dispatches.
 
 ## License and data note
 

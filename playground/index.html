@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Explore QUDT unit conversion test cases directly in the browser."
+    >
+    <title>QUDT unit conversion playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="cases.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="hero">
+      <nav aria-label="Project links">
+        <a class="brand" href="https://github.com/pietercolpaert/qudt-message-inference">
+          <span class="brand-mark" aria-hidden="true">Q</span>
+          <span>QUDT Message Inference</span>
+        </a>
+        <a class="github-link" href="https://github.com/pietercolpaert/qudt-message-inference">
+          View source <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
+
+      <div class="hero-copy">
+        <p class="eyebrow">Browser playground</p>
+        <h1>Unit conversion,<br><em>grounded in QUDT.</em></h1>
+        <p class="intro">
+          Pick any fixture from the test corpus, edit its value, and follow the affine
+          conversion from an RDF Message to its normalized result.
+        </p>
+        <div class="corpus-stats" aria-label="Test corpus summary">
+          <span><strong id="case-count">73</strong> test cases</span>
+          <span><strong id="unit-count">73</strong> units</span>
+          <span><strong id="dimension-count">13</strong> dimensions</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="workbench" aria-labelledby="workbench-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Try the corpus</p>
+            <h2 id="workbench-title">Conversion workbench</h2>
+          </div>
+          <span class="status" id="status">Fixture matches</span>
+        </div>
+
+        <div class="controls">
+          <label class="case-control">
+            <span>Test case</span>
+            <select id="case-select" aria-describedby="case-help"></select>
+            <small id="case-help">Cases are generated from tests/fixtures/manifests.</small>
+          </label>
+
+          <label class="value-control">
+            <span>Source value</span>
+            <span class="input-shell">
+              <input id="source-value" type="number" inputmode="decimal" step="any">
+              <b id="source-symbol" aria-label="Source unit"></b>
+            </span>
+          </label>
+        </div>
+
+        <div class="conversion-path" aria-label="Conversion result">
+          <article class="quantity source-quantity">
+            <p>Source</p>
+            <strong id="source-display"></strong>
+            <span id="source-name"></span>
+          </article>
+          <div class="arrow" aria-hidden="true">→</div>
+          <article class="quantity canonical-quantity">
+            <p>Canonical value</p>
+            <strong id="canonical-display"></strong>
+            <span>(value + offset) × multiplier</span>
+          </article>
+          <div class="arrow" aria-hidden="true">→</div>
+          <article class="quantity result-quantity">
+            <p>Normalized result</p>
+            <strong id="result-display"></strong>
+            <span id="target-name"></span>
+          </article>
+        </div>
+
+        <div class="formula-panel">
+          <div>
+            <p class="panel-label">QUDT affine conversion</p>
+            <code id="formula"></code>
+          </div>
+          <button id="reset-value" type="button">Reset fixture value</button>
+        </div>
+      </section>
+
+      <section class="message-grid" aria-labelledby="message-title">
+        <div class="section-heading message-heading">
+          <div>
+            <p class="eyebrow">RDF Message view</p>
+            <h2 id="message-title">Input and inferred output</h2>
+          </div>
+          <span class="observation" id="observation"></span>
+        </div>
+
+        <article class="code-card">
+          <div class="code-title"><span class="dot input-dot"></span> Input message</div>
+          <pre><code id="input-rdf"></code></pre>
+        </article>
+        <article class="code-card">
+          <div class="code-title"><span class="dot output-dot"></span> Normalized quantity</div>
+          <pre><code id="output-rdf"></code></pre>
+        </article>
+      </section>
+
+      <section class="metadata" aria-labelledby="metadata-title">
+        <div>
+          <p class="eyebrow">Under the hood</p>
+          <h2 id="metadata-title">Conversion metadata</h2>
+          <p>
+            The browser applies the same affine formula documented by the execution
+            profile. The Node test suite verifies these fixture results through Eyeling.
+          </p>
+        </div>
+        <dl>
+          <div><dt>Dimension</dt><dd id="dimension"></dd></div>
+          <div><dt>Source multiplier</dt><dd id="source-multiplier"></dd></div>
+          <div><dt>Source offset</dt><dd id="source-offset"></dd></div>
+          <div><dt>Target multiplier</dt><dd id="target-multiplier"></dd></div>
+          <div><dt>Target offset</dt><dd id="target-offset"></dd></div>
+          <div><dt>Expected fixture value</dt><dd id="expected-value"></dd></div>
+        </dl>
+      </section>
+    </main>
+
+    <footer>
+      <span>QUDT Message Inference</span>
+      <span>73 curated units · MIT licensed</span>
+    </footer>
+  </body>
+</html>
+
