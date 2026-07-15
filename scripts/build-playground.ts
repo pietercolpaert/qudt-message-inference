@@ -2,6 +2,7 @@ import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { QudtUnitIndex } from '../src/qudt-index';
 import { loadQuads } from '../src/rdf';
+import { CDT } from '../src/vocab';
 
 interface TestCase {
   readonly observation: string;
@@ -173,6 +174,7 @@ writeFileSync(
       structuredCases: structuredCases.length,
       literalCases: literalCases.length,
       dimensions: corpus.dimensions.length,
+      supportedCdtDatatypes: [...CDT.supported].sort(),
       units,
       cases,
     },

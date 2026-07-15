@@ -23,13 +23,30 @@ A conversion is allowed only when source and target units have the same `qudt:ha
 
 This covers common scale conversions, affine absolute-temperature conversions, and compound units that QUDT already expresses with a multiplier, for example metres/second to kilometres/hour. It does not claim support for logarithmic, reciprocal, contextual, calendar-dependent, currency, or other non-affine conversions. Temperature fixtures represent absolute temperatures, not temperature intervals.
 
-Version 0.1 also accepts direct literals typed as `cdt:ucum` or `cdt:speed`. Both the
-original namespace (`http://w3id.org/lindt/custom_datatypes#`) and the shorter
-`https://w3id.org/cdt/` namespace are recognized. Eyeling extracts the number and UCUM
-code from the lexical form with N3 built-ins, then matches the code to QUDT's
-`qudt:ucumCode`. The JavaScript layer does not parse the CDT lexical form or calculate its
-value; it plans the trusted unit subset and constructs the inferred RDF Message from N3
-results. Output remains a normalized nested `qudt:QuantityValue`.
+Version 0.1 also accepts direct literals using all 34 UCUM quantity-value datatypes in the
+CDT v4 draft: generic `cdt:ucum` and the 33 quantity-specific datatypes from
+`cdt:acceleration` through `cdt:volume`. Both the original namespace
+(`http://w3id.org/lindt/custom_datatypes#`) and the shorter `https://w3id.org/cdt/`
+namespace are recognized. The complete local names are:
+
+```text
+ucum, acceleration, amountOfSubstance, angle, area, catalyticActivity,
+dimensionless, electricCapacitance, electricCharge, electricConductance,
+electricCurrent, electricInductance, electricPotential, electricResistance,
+energy, force, frequency, illuminance, length, luminousFlux, luminousIntensity,
+magneticFlux, magneticFluxDensity, mass, power, pressure,
+radiationDoseAbsorbed, radiationDoseEffective, radioactivity, solidAngle,
+speed, temperature, time, volume
+```
+
+Eyeling extracts the number and UCUM code from the lexical form with N3 built-ins, then
+matches the code to QUDT's `qudt:ucumCode`. The JavaScript layer does not parse the CDT
+lexical form or calculate its value; it plans the trusted unit subset and constructs the
+inferred RDF Message from N3 results. Output remains a normalized nested
+`qudt:QuantityValue`.
+
+`cdt:ucumunit` is not a quantity-value datatype: its lexical form contains a unit but no
+number. It therefore cannot by itself be used as a direct conversion input in this profile.
 
 ## Planned conversion coverage
 
@@ -181,7 +198,7 @@ The constructor compiles SHACL IN and indexes the QUDT background. SHACL IN must
 - `sh:in` on the quantity's `qudt:unit` property shape;
 - `sh:hasValue` on that property shape;
 - `sh:unit` on the numeric property shape; or
-- `sh:unit` on a direct `cdt:ucum`/`cdt:speed` property shape.
+- `sh:unit` on a direct supported CDT UCUM quantity-value property shape.
 
 The engine retains only QUDT unit definitions in dimensions reachable from those source units. This is the load-time pruning stage. It assumes that SHACL IN is a trusted producer contract; it is not inferred from arbitrary instance data.
 
@@ -243,10 +260,14 @@ ex:observation a ex:Observation ;
   ex:speed "12 m/s"^^cdt:speed .
 ```
 
-Generic `cdt:ucum` input uses the same pattern. A lexical form must contain a finite
-decimal/scientific-notation number, whitespace, and a UCUM code that matches a
-`qudt:ucumCode` on one of the `sh:unit` values. The shipped fixtures cover `m/s`, `km/h`,
-`[mi_i]/h`, `[ft_i]/s`, and `[kn_i]`. The N3 rule uses Eyeling's `dt:datatype`,
+Generic `cdt:ucum` and every other quantity-specific CDT v4 datatype use the same pattern.
+A lexical form must contain a finite decimal/scientific-notation number, whitespace, and a
+UCUM code that matches a `qudt:ucumCode` on one of the `sh:unit` values. The shape is the
+trusted contract that restricts a quantity-specific datatype to semantically valid units.
+The shipped RDF fixtures cover `m/s`, `km/h`, `[mi_i]/h`, `[ft_i]/s`, and `[kn_i]`; the
+automated datatype matrix additionally exercises a representative UCUM code for every one
+of the 34 datatypes in both namespaces (68 datatype-IRI integration cases). The N3 rule
+uses Eyeling's `dt:datatype`,
 `dt:lexicalForm`, `string:scrape`, and `log:dtlit` built-ins; malformed or unmapped values
 produce an `INVALID_CDT_LITERAL` diagnostic.
 

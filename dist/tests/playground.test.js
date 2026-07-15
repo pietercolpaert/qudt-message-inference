@@ -22,6 +22,11 @@ function closeEnough(actual, expected) {
     strict_1.default.equal(data.structuredCases, 73);
     strict_1.default.equal(data.literalCases, 5);
     strict_1.default.equal(data.dimensions, 13);
+    strict_1.default.equal(data.supportedCdtDatatypes.length, 68);
+    strict_1.default.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/amountOfSubstance'));
+    strict_1.default.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/magneticFluxDensity'));
+    strict_1.default.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/radiationDoseEffective'));
+    strict_1.default.equal(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/ucumunit'), false);
     strict_1.default.equal(data.cases.length, data.totalCases);
     strict_1.default.equal(new Set(data.cases.map((item) => item.id)).size, data.totalCases);
     strict_1.default.equal(new Set(data.cases.map((item) => item.dimension)).size, data.dimensions);

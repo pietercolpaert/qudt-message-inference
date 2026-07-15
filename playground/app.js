@@ -10,12 +10,7 @@
   const select = byId('case-select');
   const rdfInput = byId('rdf-input');
   const status = byId('status');
-  const supportedCdtDatatypes = new Set([
-    'http://w3id.org/lindt/custom_datatypes#ucum',
-    'http://w3id.org/lindt/custom_datatypes#speed',
-    'https://w3id.org/cdt/ucum',
-    'https://w3id.org/cdt/speed',
-  ]);
+  const supportedCdtDatatypes = new Set(data.supportedCdtDatatypes ?? []);
   let selectedCase;
 
   const localName = (iri) => iri.slice(Math.max(iri.lastIndexOf('/'), iri.lastIndexOf('#')) + 1);

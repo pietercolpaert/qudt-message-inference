@@ -12,6 +12,46 @@ const root = (0, node_path_1.resolve)(__dirname, '../..');
 const fixtures = (0, node_path_1.join)(root, 'tests', 'fixtures');
 const background = (0, src_1.loadQuads)((0, node_path_1.join)(root, 'background', 'qudt-mini.ttl'));
 const shaclOut = (0, src_1.loadQuads)((0, node_path_1.join)(fixtures, 'shapes', 'speed-out.ttl'));
+const v4DatatypeCases = [
+    ['ucum', 'm'],
+    ['acceleration', 'm/s2'],
+    ['amountOfSubstance', 'mol'],
+    ['angle', 'rad'],
+    ['area', 'm2'],
+    ['catalyticActivity', 'kat'],
+    ['dimensionless', '%'],
+    ['electricCapacitance', 'F'],
+    ['electricCharge', 'C'],
+    ['electricConductance', 'S'],
+    ['electricCurrent', 'A'],
+    ['electricInductance', 'H'],
+    ['electricPotential', 'V'],
+    ['electricResistance', 'Ohm'],
+    ['energy', 'J'],
+    ['force', 'N'],
+    ['frequency', 'Hz'],
+    ['illuminance', 'lx'],
+    ['length', 'm'],
+    ['luminousFlux', 'lm'],
+    ['luminousIntensity', 'cd'],
+    ['magneticFlux', 'Wb'],
+    ['magneticFluxDensity', 'T'],
+    ['mass', 'kg'],
+    ['power', 'W'],
+    ['pressure', 'Pa'],
+    ['radiationDoseAbsorbed', 'Gy'],
+    ['radiationDoseEffective', 'Sv'],
+    ['radioactivity', 'Bq'],
+    ['solidAngle', 'sr'],
+    ['speed', 'm/s'],
+    ['temperature', 'K'],
+    ['time', 's'],
+    ['volume', 'm3'],
+];
+const datatypeNamespaces = [
+    ['v4', 'https://w3id.org/cdt/'],
+    ['legacy', 'http://w3id.org/lindt/custom_datatypes#'],
+];
 function closeEnough(actual, expected) {
     const tolerance = Math.max(1e-10, Math.abs(expected) * 1e-10);
     return Math.abs(actual - expected) <= tolerance;
@@ -61,4 +101,75 @@ for (const fixtureName of ['cdt-speed', 'cdt-ucum']) {
     strict_1.default.equal(inferred[0].conversions.length, 0);
     strict_1.default.equal(inferred[0].diagnostics[0]?.code, 'INVALID_CDT_LITERAL');
 });
+(0, node_test_1.default)('the supported vocabulary contains every CDT v4 UCUM quantity-value datatype', () => {
+    strict_1.default.deepEqual(v4DatatypeCases.map(([name]) => name), [...src_1.CDT_QUANTITY_DATATYPE_NAMES]);
+    strict_1.default.equal(src_1.CDT.supported.size, v4DatatypeCases.length * 2);
+    for (const [name] of v4DatatypeCases) {
+        strict_1.default.ok(src_1.CDT.supported.has(`https://w3id.org/cdt/${name}`));
+        strict_1.default.ok(src_1.CDT.supported.has(`http://w3id.org/lindt/custom_datatypes#${name}`));
+    }
+    strict_1.default.equal(src_1.CDT.supported.has('https://w3id.org/cdt/ucumunit'), false);
+});
+async function assertDatatypeConversion(datatypeIri, datatypeName, ucumCode) {
+    const unitIri = `https://example.org/unit/${datatypeName}`;
+    const dimensionIri = `https://example.org/dimension/${datatypeName}`;
+    const syntheticBackground = (0, src_1.parseQuads)(`
+    @prefix qudt: <http://qudt.org/schema/qudt/> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+    <${unitIri}> a qudt:Unit ;
+      qudt:conversionMultiplier "1"^^xsd:decimal ;
+      qudt:hasDimensionVector <${dimensionIri}> ;
+      qudt:ucumCode "${ucumCode}"^^qudt:UCUMcs .
+  `);
+    const shaclIn = (0, src_1.parseQuads)(`
+    @prefix ex: <https://example.org/> .
+    @prefix sh: <http://www.w3.org/ns/shacl#> .
+
+    ex:InputShape a sh:NodeShape ;
+      sh:targetClass ex:Observation ;
+      sh:property [
+        sh:path ex:value ;
+        sh:datatype <${datatypeIri}> ;
+        sh:unit <${unitIri}>
+      ] .
+  `);
+    const outputShape = (0, src_1.parseQuads)(`
+    @prefix ex: <https://example.org/> .
+    @prefix qudt: <http://qudt.org/schema/qudt/> .
+    @prefix sh: <http://www.w3.org/ns/shacl#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+    ex:OutputShape a sh:NodeShape ;
+      sh:targetClass ex:Observation ;
+      sh:property [ sh:path ex:normalizedQuantity ; sh:node ex:OutputQuantityShape ] .
+    ex:OutputQuantityShape a sh:NodeShape ;
+      sh:property [
+        sh:path qudt:numericValue ;
+        sh:datatype xsd:decimal ;
+        sh:unit <${unitIri}>
+      ] ;
+      sh:property [ sh:path qudt:unit ; sh:hasValue <${unitIri}> ] .
+  `);
+    const messages = (0, src_1.parseRdfMessageLog)(`
+    @prefix ex: <https://example.org/> .
+    ex:observation a ex:Observation ;
+      ex:value "2.5 ${ucumCode}"^^<${datatypeIri}> .
+  `);
+    const engine = new src_1.QudtMessageInferenceEngine({
+        shaclIn,
+        backgroundKnowledge: syntheticBackground,
+    });
+    const inferred = await (0, src_1.collectMessages)(engine.infer(outputShape, messages));
+    strict_1.default.deepEqual(inferred[0].diagnostics, []);
+    strict_1.default.equal(inferred[0].conversions.length, 1);
+    strict_1.default.equal(inferred[0].conversions[0].sourceUnit, unitIri);
+    strict_1.default.equal(inferred[0].conversions[0].sourceValue, 2.5);
+    strict_1.default.equal(inferred[0].conversions[0].targetValue, 2.5);
+}
+for (const [namespaceLabel, datatypeNamespace] of datatypeNamespaces) {
+    for (const [datatypeName, ucumCode] of v4DatatypeCases) {
+        (0, node_test_1.default)(`${namespaceLabel} cdt:${datatypeName}: parses a representative UCUM literal`, () => assertDatatypeConversion(`${datatypeNamespace}${datatypeName}`, datatypeName, ucumCode));
+    }
+}
 //# sourceMappingURL=cdt-literal.test.js.map

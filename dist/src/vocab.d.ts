@@ -45,6 +45,7 @@ export declare const QUDT: {
     readonly symbol: "http://qudt.org/schema/qudt/symbol";
     readonly ucumCode: "http://qudt.org/schema/qudt/ucumCode";
 };
+export declare const CDT_QUANTITY_DATATYPE_NAMES: readonly ["ucum", "acceleration", "amountOfSubstance", "angle", "area", "catalyticActivity", "dimensionless", "electricCapacitance", "electricCharge", "electricConductance", "electricCurrent", "electricInductance", "electricPotential", "electricResistance", "energy", "force", "frequency", "illuminance", "length", "luminousFlux", "luminousIntensity", "magneticFlux", "magneticFluxDensity", "mass", "power", "pressure", "radiationDoseAbsorbed", "radiationDoseEffective", "radioactivity", "solidAngle", "speed", "temperature", "time", "volume"];
 export declare const CDT: {
     readonly namespace: "http://w3id.org/lindt/custom_datatypes#";
     readonly shortNamespace: "https://w3id.org/cdt/";
@@ -52,6 +53,7 @@ export declare const CDT: {
     readonly speed: "http://w3id.org/lindt/custom_datatypes#speed";
     readonly shortUcum: "https://w3id.org/cdt/ucum";
     readonly shortSpeed: "https://w3id.org/cdt/speed";
+    readonly quantityDatatypeNames: readonly ["ucum", "acceleration", "amountOfSubstance", "angle", "area", "catalyticActivity", "dimensionless", "electricCapacitance", "electricCharge", "electricConductance", "electricCurrent", "electricInductance", "electricPotential", "electricResistance", "energy", "force", "frequency", "illuminance", "length", "luminousFlux", "luminousIntensity", "magneticFlux", "magneticFluxDensity", "mass", "power", "pressure", "radiationDoseAbsorbed", "radiationDoseEffective", "radioactivity", "solidAngle", "speed", "temperature", "time", "volume"];
     readonly supported: Set<string>;
 };
 export declare const PROV: {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NUMERIC_DATATYPES = exports.QCR = exports.PROV = exports.CDT = exports.QUDT = exports.SH = exports.XSD = exports.RDF = void 0;
+exports.NUMERIC_DATATYPES = exports.QCR = exports.PROV = exports.CDT = exports.CDT_QUANTITY_DATATYPE_NAMES = exports.QUDT = exports.SH = exports.XSD = exports.RDF = void 0;
 exports.RDF = {
     type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
     first: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',
@@ -48,19 +48,53 @@ exports.QUDT = {
     symbol: 'http://qudt.org/schema/qudt/symbol',
     ucumCode: 'http://qudt.org/schema/qudt/ucumCode',
 };
+exports.CDT_QUANTITY_DATATYPE_NAMES = [
+    'ucum',
+    'acceleration',
+    'amountOfSubstance',
+    'angle',
+    'area',
+    'catalyticActivity',
+    'dimensionless',
+    'electricCapacitance',
+    'electricCharge',
+    'electricConductance',
+    'electricCurrent',
+    'electricInductance',
+    'electricPotential',
+    'electricResistance',
+    'energy',
+    'force',
+    'frequency',
+    'illuminance',
+    'length',
+    'luminousFlux',
+    'luminousIntensity',
+    'magneticFlux',
+    'magneticFluxDensity',
+    'mass',
+    'power',
+    'pressure',
+    'radiationDoseAbsorbed',
+    'radiationDoseEffective',
+    'radioactivity',
+    'solidAngle',
+    'speed',
+    'temperature',
+    'time',
+    'volume',
+];
+const CDT_NAMESPACE = 'http://w3id.org/lindt/custom_datatypes#';
+const CDT_SHORT_NAMESPACE = 'https://w3id.org/cdt/';
 exports.CDT = {
-    namespace: 'http://w3id.org/lindt/custom_datatypes#',
-    shortNamespace: 'https://w3id.org/cdt/',
-    ucum: 'http://w3id.org/lindt/custom_datatypes#ucum',
-    speed: 'http://w3id.org/lindt/custom_datatypes#speed',
-    shortUcum: 'https://w3id.org/cdt/ucum',
-    shortSpeed: 'https://w3id.org/cdt/speed',
-    supported: new Set([
-        'http://w3id.org/lindt/custom_datatypes#ucum',
-        'http://w3id.org/lindt/custom_datatypes#speed',
-        'https://w3id.org/cdt/ucum',
-        'https://w3id.org/cdt/speed',
-    ]),
+    namespace: CDT_NAMESPACE,
+    shortNamespace: CDT_SHORT_NAMESPACE,
+    ucum: `${CDT_NAMESPACE}ucum`,
+    speed: `${CDT_NAMESPACE}speed`,
+    shortUcum: `${CDT_SHORT_NAMESPACE}ucum`,
+    shortSpeed: `${CDT_SHORT_NAMESPACE}speed`,
+    quantityDatatypeNames: exports.CDT_QUANTITY_DATATYPE_NAMES,
+    supported: new Set([CDT_NAMESPACE, CDT_SHORT_NAMESPACE].flatMap((namespace) => exports.CDT_QUANTITY_DATATYPE_NAMES.map((name) => `${namespace}${name}`))),
 };
 exports.PROV = {
     wasDerivedFrom: 'http://www.w3.org/ns/prov#wasDerivedFrom',

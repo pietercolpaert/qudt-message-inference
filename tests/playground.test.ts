@@ -20,6 +20,7 @@ interface PlaygroundData {
   readonly structuredCases: number;
   readonly literalCases: number;
   readonly dimensions: number;
+  readonly supportedCdtDatatypes: readonly string[];
   readonly cases: readonly PlaygroundCase[];
 }
 
@@ -40,6 +41,11 @@ test('the generated browser playground contains and converts the full corpus', (
   assert.equal(data.structuredCases, 73);
   assert.equal(data.literalCases, 5);
   assert.equal(data.dimensions, 13);
+  assert.equal(data.supportedCdtDatatypes.length, 68);
+  assert.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/amountOfSubstance'));
+  assert.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/magneticFluxDensity'));
+  assert.ok(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/radiationDoseEffective'));
+  assert.equal(data.supportedCdtDatatypes.includes('https://w3id.org/cdt/ucumunit'), false);
   assert.equal(data.cases.length, data.totalCases);
   assert.equal(new Set(data.cases.map((item) => item.id)).size, data.totalCases);
   assert.equal(new Set(data.cases.map((item) => item.dimension)).size, data.dimensions);

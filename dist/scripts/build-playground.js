@@ -4,6 +4,7 @@ const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
 const qudt_index_1 = require("../src/qudt-index");
 const rdf_1 = require("../src/rdf");
+const vocab_1 = require("../src/vocab");
 const dimensionLabels = {
     acceleration: 'Acceleration',
     angle: 'Plane angle',
@@ -107,6 +108,7 @@ for (const file of ['index.html', 'app.js', 'styles.css', '.nojekyll']) {
     structuredCases: structuredCases.length,
     literalCases: literalCases.length,
     dimensions: corpus.dimensions.length,
+    supportedCdtDatatypes: [...vocab_1.CDT.supported].sort(),
     units,
     cases,
 }, null, 2)};\n`);
