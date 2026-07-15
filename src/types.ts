@@ -3,9 +3,9 @@ import type { Quad, Term } from '@rdfjs/types';
 export type RdfMessage = readonly Quad[];
 
 export interface InputShapePlan {
-  readonly representation: 'qudt-quantity' | 'cdt-literal';
+  readonly representation: 'auto' | 'qudt-quantity' | 'cdt-literal';
   readonly targetClasses: readonly string[];
-  readonly quantityPath: string;
+  readonly quantityPath?: string;
   readonly numericValuePath?: string;
   readonly unitPath?: string;
   readonly allowedUnits: ReadonlySet<string>;
@@ -30,12 +30,12 @@ export interface QudtUnitDefinition {
 }
 
 export interface PlannerSummary {
-  readonly inputRepresentation: 'qudt-quantity' | 'cdt-literal';
+  readonly inputRepresentation: 'auto' | 'qudt-quantity' | 'cdt-literal';
   readonly totalQudtUnits: number;
   readonly retainedQudtUnits: number;
   readonly sourceUnits: readonly string[];
   readonly retainedDimensions: readonly string[];
-  readonly quantityPath: string;
+  readonly quantityPath?: string;
   readonly numericValuePath?: string;
   readonly unitPath?: string;
 }
@@ -75,7 +75,7 @@ export interface InferredRdfMessage {
 }
 
 export interface EngineOptions {
-  readonly shaclIn: readonly Quad[];
+  readonly shaclIn?: readonly Quad[];
   readonly backgroundKnowledge: readonly Quad[];
   readonly backwardRule?: string;
   readonly includeInputByDefault?: boolean;

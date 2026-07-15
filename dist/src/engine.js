@@ -13,7 +13,7 @@ class IncompatibleDimensionError extends Error {
     targetDimension;
     sourceDimensions;
     constructor(targetUnit, targetDimension, sourceDimensions) {
-        super(`Target unit ${targetUnit} has dimension ${targetDimension}, which is incompatible with SHACL IN dimensions ${sourceDimensions.join(', ')}.`);
+        super(`Target unit ${targetUnit} has dimension ${targetDimension}, which is incompatible with the available input dimensions ${sourceDimensions.join(', ')}.`);
         this.targetUnit = targetUnit;
         this.targetDimension = targetDimension;
         this.sourceDimensions = sourceDimensions;
@@ -54,6 +54,14 @@ function findSubjects(quads, predicate, object) {
     }
     return [...result.values()];
 }
+function findReferencingSubjects(quads, object) {
+    const result = new Map();
+    for (const quad of quads) {
+        if ((0, graph_1.sameTerm)(quad.object, object))
+            result.set((0, graph_1.termKey)(quad.subject), quad.subject);
+    }
+    return [...result.values()];
+}
 class QudtMessageInferenceEngine {
     inputPlan;
     index;
@@ -63,8 +71,17 @@ class QudtMessageInferenceEngine {
     includeInputByDefault;
     summary;
     constructor(options) {
-        this.inputPlan = (0, shacl_plan_1.compileInputShape)(options.shaclIn);
         this.index = new qudt_index_1.QudtUnitIndex(options.backgroundKnowledge);
+        this.inputPlan = options.shaclIn
+            ? (0, shacl_plan_1.compileInputShape)(options.shaclIn)
+            : {
+                representation: 'auto',
+                targetClasses: [],
+                numericValuePath: vocab_1.QUDT.numericValue,
+                unitPath: vocab_1.QUDT.unit,
+                allowedUnits: new Set(this.index.all().map((unit) => unit.iri)),
+                literalDatatypes: new Set(vocab_1.CDT.supported),
+            };
         const planned = this.index.plan(this.inputPlan);
         this.sourceUnits = planned.sourceUnits;
         this.sourceDimensions = planned.sourceDimensions;
@@ -137,12 +154,18 @@ class QudtMessageInferenceEngine {
                     targetValue: targetNumber,
                 });
             };
-            if (this.inputPlan.representation === 'cdt-literal') {
+            if (this.inputPlan.representation === 'cdt-literal' ||
+                this.inputPlan.representation === 'auto') {
                 for (const sourceQuad of message) {
-                    if (sourceQuad.predicate.value !== this.inputPlan.quantityPath)
+                    if (this.inputPlan.representation === 'cdt-literal' &&
+                        sourceQuad.predicate.value !== this.inputPlan.quantityPath)
                         continue;
                     const root = sourceQuad.subject;
                     const sourceLiteral = sourceQuad.object;
+                    if (this.inputPlan.representation === 'auto' &&
+                        (sourceLiteral.termType !== 'Literal' ||
+                            !this.inputPlan.literalDatatypes.has(sourceLiteral.datatype.value)))
+                        continue;
                     if (sourceLiteral.termType !== 'Literal' ||
                         !this.inputPlan.literalDatatypes.has(sourceLiteral.datatype.value)) {
                         diagnostics.push({
@@ -211,9 +234,11 @@ class QudtMessageInferenceEngine {
                     }
                     appendConversion(root, root, sourceUnitTerm, sourceNumber, targetNumber);
                 }
-                yield { messageIndex, quads: outputQuads, conversions, diagnostics };
-                messageIndex += 1;
-                continue;
+                if (this.inputPlan.representation === 'cdt-literal') {
+                    yield { messageIndex, quads: outputQuads, conversions, diagnostics };
+                    messageIndex += 1;
+                    continue;
+                }
             }
             const numericValuePath = this.inputPlan.numericValuePath;
             const unitPath = this.inputPlan.unitPath;
@@ -221,9 +246,18 @@ class QudtMessageInferenceEngine {
                 throw new Error('A QUDT quantity input plan requires numeric-value and unit paths.');
             }
             const sourceQuantities = new Map();
-            for (const quad of message) {
-                if (quad.predicate.value === this.inputPlan.quantityPath) {
-                    sourceQuantities.set((0, graph_1.termKey)(quad.object), quad.object);
+            if (this.inputPlan.representation === 'auto') {
+                for (const quad of message) {
+                    if (quad.predicate.value === numericValuePath) {
+                        sourceQuantities.set((0, graph_1.termKey)(quad.subject), quad.subject);
+                    }
+                }
+            }
+            else {
+                for (const quad of message) {
+                    if (quad.predicate.value === this.inputPlan.quantityPath) {
+                        sourceQuantities.set((0, graph_1.termKey)(quad.object), quad.object);
+                    }
                 }
             }
             for (const sourceQuantity of sourceQuantities.values()) {
@@ -249,8 +283,12 @@ class QudtMessageInferenceEngine {
                 }
                 if (!this.inputPlan.allowedUnits.has(sourceUnitTerm.value)) {
                     diagnostics.push({
-                        code: 'SOURCE_UNIT_NOT_ALLOWED',
-                        message: `Source unit ${sourceUnitTerm.value} is outside the trusted SHACL IN contract.`,
+                        code: this.inputPlan.representation === 'auto'
+                            ? 'UNKNOWN_SOURCE_UNIT'
+                            : 'SOURCE_UNIT_NOT_ALLOWED',
+                        message: this.inputPlan.representation === 'auto'
+                            ? `Source unit ${sourceUnitTerm.value} is absent from the loaded QUDT background.`
+                            : `Source unit ${sourceUnitTerm.value} is outside the trusted SHACL IN contract.`,
                         sourceNode: sourceQuantity,
                         sourceUnit: sourceUnitTerm.value,
                         targetUnit: compiled.outputPlan.targetUnit,
@@ -310,7 +348,9 @@ class QudtMessageInferenceEngine {
                     });
                     continue;
                 }
-                const roots = findSubjects(message, this.inputPlan.quantityPath, sourceQuantity);
+                const roots = this.inputPlan.representation === 'auto'
+                    ? findReferencingSubjects(message, sourceQuantity)
+                    : findSubjects(message, this.inputPlan.quantityPath ?? '', sourceQuantity);
                 for (const root of roots) {
                     appendConversion(root, sourceQuantity, sourceUnitTerm, sourceNumber, targetNumber);
                 }

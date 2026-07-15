@@ -25,7 +25,11 @@ const fixtureRoot = (0, node_path_1.join)(root, 'tests', 'fixtures');
 const sourceRoot = (0, node_path_1.join)(root, 'playground');
 const destinationRoot = (0, node_path_1.join)(root, 'dist', 'playground');
 const corpus = JSON.parse((0, node_fs_1.readFileSync)((0, node_path_1.join)(fixtureRoot, 'manifests', 'all.json'), 'utf8'));
-const unitIndex = new qudt_index_1.QudtUnitIndex((0, rdf_1.loadQuads)((0, node_path_1.join)(root, 'background', 'qudt-mini.ttl')));
+const unitIndex = new qudt_index_1.QudtUnitIndex([
+    // Preserve the stable fixture values and aliases used by the executable corpus.
+    ...(0, rdf_1.loadQuads)((0, node_path_1.join)(root, 'background', 'qudt-mini.ttl')),
+    ...(0, rdf_1.loadQuads)((0, node_path_1.join)(root, 'background', 'qudt.ttl')),
+]);
 function escapeTurtle(value) {
     return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
@@ -34,6 +38,9 @@ function inputRdf(testCase) {
         return `@prefix ex: <https://example.org/> .\n\n<${testCase.observation}>\n  a ex:Observation ;\n  <${testCase.property}> "${escapeTurtle(`${testCase.sourceValue} ${testCase.ucumCode}`)}"^^<${testCase.datatype}> .`;
     }
     return `@prefix ex:   <https://example.org/> .\n@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n<${testCase.observation}>\n  a ex:Observation ;\n  ex:quantity [\n    a qudt:QuantityValue ;\n    qudt:numericValue "${escapeTurtle(testCase.sourceValue)}"^^xsd:decimal ;\n    qudt:unit <${testCase.sourceUnit}>\n  ] .`;
+}
+function outputShacl(testCase) {
+    return `@prefix ex:   <https://example.org/> .\n@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix sh:   <http://www.w3.org/ns/shacl#> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\nex:OutputShape a sh:NodeShape ;\n  sh:targetClass ex:Observation ;\n  sh:property [\n    sh:path ex:normalizedQuantity ;\n    sh:node ex:OutputQuantityShape\n  ] .\n\nex:OutputQuantityShape a sh:NodeShape ;\n  sh:property [\n    sh:path qudt:numericValue ;\n    sh:datatype xsd:decimal ;\n    sh:unit <${testCase.targetUnit}>\n  ] ;\n  sh:property [\n    sh:path qudt:unit ;\n    sh:hasValue <${testCase.targetUnit}>\n  ] .`;
 }
 function buildCase(testCase, id, dimension, dimensionLabel) {
     const source = unitIndex.require(testCase.sourceUnit);
@@ -54,6 +61,7 @@ function buildCase(testCase, id, dimension, dimensionLabel) {
         property: testCase.property,
         ucumCode: testCase.ucumCode,
         inputRdf: inputRdf(testCase),
+        outputShacl: outputShacl(testCase),
         source: {
             iri: source.iri,
             symbol: source.symbol ?? source.iri.split('/').pop() ?? source.iri,
@@ -103,7 +111,7 @@ for (const file of ['index.html', 'app.js', 'styles.css', '.nojekyll']) {
     (0, node_fs_1.copyFileSync)((0, node_path_1.join)(sourceRoot, file), (0, node_path_1.join)(destinationRoot, file));
 }
 (0, node_fs_1.writeFileSync)((0, node_path_1.join)(destinationRoot, 'cases.js'), `window.QUDT_PLAYGROUND_DATA = ${JSON.stringify({
-    totalUnits: corpus.totalUnits,
+    totalUnits: unitIndex.size,
     totalCases: cases.length,
     structuredCases: structuredCases.length,
     literalCases: literalCases.length,

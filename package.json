@@ -1,25 +1,26 @@
 {
   "name": "qudt-message-inference",
   "version": "0.1.0",
-  "description": "SHACL-planned QUDT unit conversion for RDF Message Streams using Eyeling backward N3 rules.",
+  "description": "QUDT unit conversion for RDF Message Streams using optional SHACL planning and Eyeling backward N3 rules.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "type": "commonjs",
   "files": [
     "dist/src/",
     "dist/playground/",
+    "dist/background/",
     "rules/",
-    "background/qudt-conversion-background.n3",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "build": "npm run clean --silent && tsc -p tsconfig.json && node dist/scripts/build-playground.js",
+    "build": "npm run clean --silent && tsc -p tsconfig.json && node dist/scripts/build-playground.js && node dist/scripts/build-background.js background/qudt.ttl dist/background/qudt-conversion-background.n3",
     "test": "npm run build --silent && node --test dist/tests/*.test.js",
     "example": "npm run build --silent && node dist/examples/normalize-length/run.js",
     "playground": "npm run build --silent && node dist/scripts/serve-playground.js",
-    "build:background": "npm run build --silent && node dist/scripts/build-background.js",
+    "build:background": "npm run build --silent",
+    "fetch:qudt": "node scripts/fetch-qudt.cjs",
     "setup:hooks": "node scripts/install-git-hooks.cjs",
     "prepare": "npm run setup:hooks --silent"
   },

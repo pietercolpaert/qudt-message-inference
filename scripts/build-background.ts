@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { loadQuads, QudtUnitIndex } from '../src';
 
 const [, , qudtPathArgument, outputPathArgument] = process.argv;
@@ -28,6 +28,7 @@ if (!qudtPathArgument || !outputPathArgument) {
     rule.trim(),
     '',
   ].join('\n');
+  mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, combined, 'utf8');
   console.log(`Wrote ${index.size} usable QUDT unit definitions to ${outputPath}`);
 }

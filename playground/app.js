@@ -9,6 +9,7 @@
   const byId = (id) => document.getElementById(id);
   const select = byId('case-select');
   const rdfInput = byId('rdf-input');
+  const shaclOutput = byId('shacl-output');
   const status = byId('status');
   const supportedCdtDatatypes = new Set(data.supportedCdtDatatypes ?? []);
   let selectedCase;
@@ -59,6 +60,37 @@
     (unit) => Array.isArray(unit.ucumCodes) && unit.ucumCodes.includes(code),
   );
 
+  const parseOutputShape = (rdf) => {
+    const prefixes = prefixesFrom(rdf);
+    let quantityPath;
+    let numericValuePath;
+    let unitPath;
+    let targetUnitIri;
+    for (const match of rdf.matchAll(/\[([\s\S]*?)\]/g)) {
+      const body = match[1];
+      const pathToken = /\bsh:path\s+(<[^>]+>|[A-Za-z][\w-]*:[A-Za-z0-9_.~-]+)/.exec(body)?.[1];
+      if (!pathToken) continue;
+      const path = resolveTerm(pathToken, prefixes);
+      if (!path) continue;
+      if (/\bsh:node\b/.test(body)) quantityPath = path;
+      const hasValueToken = /\bsh:hasValue\s+(<[^>]+>|[A-Za-z][\w-]*:[A-Za-z0-9_.~-]+)/.exec(body)?.[1];
+      const unitToken = /\bsh:unit\s+(<[^>]+>|[A-Za-z][\w-]*:[A-Za-z0-9_.~-]+)/.exec(body)?.[1];
+      if (hasValueToken) {
+        unitPath = path;
+        targetUnitIri = resolveTerm(hasValueToken, prefixes);
+      } else if (unitToken) {
+        numericValuePath = path;
+        targetUnitIri ??= resolveTerm(unitToken, prefixes);
+      }
+    }
+    if (!quantityPath || !numericValuePath || !unitPath || !targetUnitIri) {
+      throw new Error('SHACL OUT must contain a result path, numeric path, unit path, and one target unit.');
+    }
+    const target = findUnitByIri(targetUnitIri);
+    if (!target) throw new Error('The SHACL OUT target unit is not in the playground QUDT background.');
+    return { quantityPath, numericValuePath, unitPath, target };
+  };
+
   const parseInput = (rdf) => {
     const prefixes = prefixesFrom(rdf);
     const typedLiteralPattern = /"((?:\\.|[^"\\])*)"\s*\^\^\s*(<[^>]+>|[A-Za-z][\w-]*:[A-Za-z][\w-]*)/g;
@@ -91,8 +123,8 @@
     return match ? match[1] : selectedCase.observation;
   };
 
-  const outputRdf = (observation, targetValue, target) =>
-    `@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n<${observation}>\n  <https://example.org/normalizedQuantity> [\n    a qudt:QuantityValue ;\n    qudt:numericValue "${escapeTurtle(String(targetValue))}"^^xsd:decimal ;\n    qudt:unit <${target.iri}>\n  ] .`;
+  const outputRdf = (observation, targetValue, outputShape) =>
+    `@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n<${observation}>\n  <${outputShape.quantityPath}> [\n    a qudt:QuantityValue ;\n    <${outputShape.numericValuePath}> "${escapeTurtle(String(targetValue))}"^^xsd:decimal ;\n    <${outputShape.unitPath}> <${outputShape.target.iri}>\n  ] .`;
 
   const showError = (error) => {
     const message = error instanceof Error ? error.message : String(error);
@@ -109,7 +141,8 @@
   const calculate = () => {
     try {
       const parsed = parseInput(rdfInput.value);
-      const target = selectedCase.target;
+      const outputShape = parseOutputShape(shaclOutput.value);
+      const target = outputShape.target;
       if (parsed.unit.dimensionVector !== target.dimensionVector) {
         throw new Error('The parsed source unit is not dimensionally compatible with this example’s target unit.');
       }
@@ -119,7 +152,7 @@
       if (!Number.isFinite(result)) throw new Error('The affine conversion did not produce a finite result.');
 
       const observation = observationFrom(rdfInput.value);
-      byId('output-rdf').textContent = outputRdf(observation, roundedResult, target);
+      byId('output-rdf').textContent = outputRdf(observation, roundedResult, outputShape);
       byId('source-display').textContent = `${formatNumber(parsed.value)} ${parsed.unit.symbol}`;
       byId('source-name').textContent = localName(parsed.unit.iri);
       byId('canonical-display').textContent = formatNumber(canonical);
@@ -130,10 +163,13 @@
       byId('input-profile').textContent = parsed.profile;
       byId('source-unit').textContent = parsed.unit.iri;
       byId('source-affine').textContent = `${parsed.unit.multiplier} / ${parsed.unit.offset}`;
+      byId('target-unit').textContent = target.iri;
+      byId('target-affine').textContent = `${target.multiplier} / ${target.offset}`;
       byId('editor-help').innerHTML = 'Edit the full RDF above, then run again. CDT unit extraction is implemented by <code>string:scrape</code> in the tested N3 engine.';
 
       const isFixture =
         parsed.unit.iri === selectedCase.source.iri &&
+        target.iri === selectedCase.target.iri &&
         closeEnough(parsed.value, Number(selectedCase.sourceValue)) &&
         closeEnough(result, Number(selectedCase.expectedValue));
       status.className = isFixture ? 'status' : 'status live';
@@ -147,9 +183,8 @@
     selectedCase = data.cases.find((testCase) => testCase.id === id) ?? data.cases[0];
     select.value = selectedCase.id;
     rdfInput.value = selectedCase.inputRdf;
+    shaclOutput.value = selectedCase.outputShacl;
     byId('dimension').textContent = selectedCase.dimensionLabel;
-    byId('target-unit').textContent = selectedCase.target.iri;
-    byId('target-affine').textContent = `${selectedCase.target.multiplier} / ${selectedCase.target.offset}`;
     byId('expected-value').textContent = `${selectedCase.expectedValue} ${selectedCase.target.symbol}`;
     calculate();
   };
@@ -181,6 +216,12 @@
   });
   byId('run-conversion').addEventListener('click', calculate);
   rdfInput.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      calculate();
+    }
+  });
+  shaclOutput.addEventListener('keydown', (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
       calculate();

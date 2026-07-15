@@ -2,7 +2,7 @@
 
 A TypeScript/RDFJS prototype that normalizes QUDT quantity values in RDF Message Streams. It uses:
 
-- **SHACL IN** as a trusted description of the units and graph path that may arrive;
+- optional **SHACL IN** as a trusted description used for custom input paths and pruning;
 - **QUDT** as background knowledge for dimensions, conversion multipliers, and offsets;
 - a generic **backward N3 rule** executed by **Eyeling**;
 - **SHACL OUT** to choose the output graph path and target unit;
@@ -41,7 +41,7 @@ speed, temperature, time, volume
 
 Eyeling extracts the number and UCUM code from the lexical form with N3 built-ins, then
 matches the code to QUDT's `qudt:ucumCode`. The JavaScript layer does not parse the CDT
-lexical form or calculate its value; it plans the trusted unit subset and constructs the
+lexical form or calculate its value; it chooses the effective unit subset and constructs the
 inferred RDF Message from N3 results. Output remains a normalized nested
 `qudt:QuantityValue`.
 
@@ -56,7 +56,6 @@ with explicit capability checks instead of silently treating every unit as affin
 
 Planned areas include:
 
-- broader affine coverage from the official QUDT distribution;
 - logarithmic conversions such as bel, decibel, neper, octave, decade, and pH;
 - reciprocal conversions such as period to frequency;
 - calendar-aware durations, including variable month and year lengths;
@@ -122,9 +121,11 @@ npm test
 
 The static [QUDT unit conversion playground](https://pietercolpaert.github.io/qudt-message-inference/)
 contains a selectable dropdown for all 73 structured conversion cases plus five CDT
-literal examples. The complete input RDF is the primary editable surface, and the page
-shows the normalized RDF and affine calculation. The dependency-free browser parser is a
-preview; the test suite runs the same fixtures through Eyeling and the N3 rules.
+literal examples. The complete input RDF and SHACL OUT are editable: changing the output
+shape's target unit or paths changes the previewed output. The playground deliberately
+omits SHACL IN and auto-discovers standard nested QUDT quantities and direct CDT literals.
+The dependency-free browser parser is a preview; the test suite runs the same fixtures
+through Eyeling and the N3 rules.
 
 Run it locally without adding a web-server dependency:
 
@@ -178,8 +179,7 @@ import {
 } from 'qudt-message-inference';
 
 const engine = new QudtMessageInferenceEngine({
-  shaclIn: loadQuads('input-shape.ttl'),
-  backgroundKnowledge: loadQuads('qudt-units.ttl'),
+  backgroundKnowledge: loadQuads('background/qudt.ttl'),
 });
 
 console.log(engine.getPlanSummary());
@@ -191,23 +191,35 @@ for await (const result of engine.infer(loadQuads('output-shape.ttl'), messages)
 }
 ```
 
-### Constructor planning
+### Optional SHACL IN and constructor planning
 
-The constructor compiles SHACL IN and indexes the QUDT background. SHACL IN must enumerate the possible source-unit IRIs using one or more of:
+The constructor indexes the QUDT background. When `shaclIn` is omitted, the automatic
+input profile:
+
+- discovers nested quantities through standard `qudt:numericValue` and `qudt:unit`
+  properties, regardless of the root-to-quantity predicate;
+- discovers supported CDT quantity-value literals regardless of their predicate; and
+- initially makes every usable affine unit in the background available, then retains only
+  units dimensionally compatible with SHACL OUT when compiling a conversion.
+
+Provide `shaclIn` when a producer uses custom paths or when early pruning and an explicit
+unit allowlist are useful. It can enumerate possible source-unit IRIs using one or more of:
 
 - `sh:in` on the quantity's `qudt:unit` property shape;
 - `sh:hasValue` on that property shape;
 - `sh:unit` on the numeric property shape; or
 - `sh:unit` on a direct supported CDT UCUM quantity-value property shape.
 
-The engine retains only QUDT unit definitions in dimensions reachable from those source units. This is the load-time pruning stage. It assumes that SHACL IN is a trusted producer contract; it is not inferred from arbitrary instance data.
+With SHACL IN, the engine retains only QUDT definitions in dimensions reachable from its
+source units. The shape is treated as a trusted producer contract rather than validation of
+arbitrary instance data.
 
 ### `infer(shaclOut, messages)`
 
 SHACL OUT must select exactly one target QUDT unit using `sh:unit` and/or `sh:hasValue`. Before reading the stream, the engine:
 
 1. resolves the target unit in QUDT;
-2. rejects a target whose dimension is absent from SHACL IN;
+2. rejects a target whose dimension is absent from the available input profile;
 3. retains only source units dimensionally compatible with the target;
 4. compiles an Eyeling program containing the generic backward rule, selected QUDT facts, and a forward trigger generated from the SHACL paths.
 
@@ -215,7 +227,8 @@ Every input message is reasoned over independently. By default the result preser
 
 ## Supported SHACL pattern
 
-The prototype accepts one input mapping per shape graph. It can be a nested quantity:
+SHACL IN is optional. When supplied, the prototype accepts one input mapping per shape
+graph. It can be a nested quantity:
 
 ```turtle
 ex:InputShape a sh:NodeShape ;
@@ -262,8 +275,9 @@ ex:observation a ex:Observation ;
 
 Generic `cdt:ucum` and every other quantity-specific CDT v4 datatype use the same pattern.
 A lexical form must contain a finite decimal/scientific-notation number, whitespace, and a
-UCUM code that matches a `qudt:ucumCode` on one of the `sh:unit` values. The shape is the
-trusted contract that restricts a quantity-specific datatype to semantically valid units.
+UCUM code that matches a `qudt:ucumCode` on one of the available units. When present,
+SHACL IN is the trusted contract that restricts a quantity-specific datatype to
+semantically valid units.
 The shipped RDF fixtures cover `m/s`, `km/h`, `[mi_i]/h`, `[ft_i]/s`, and `[kn_i]`; the
 automated datatype matrix additionally exercises a representative UCUM code for every one
 of the 34 datatypes in both namespaces (68 datatype-IRI integration cases). The N3 rule
@@ -305,27 +319,42 @@ Only simple IRI paths are supported in version 0.1. General SHACL property paths
   qcr:convertedValue ?targetValue .
 ```
 
-It is a backward rule (`<=`). The SHACL compiler generates a narrow forward trigger for the selected input and output paths. That trigger asks for the backward predicate only for quantities found in each incoming message.
+It is a backward rule (`<=`). The compiler generates a forward trigger from the automatic
+input profile or the supplied SHACL IN, plus the selected SHACL OUT paths. That trigger
+asks for the backward predicate only for quantities found in each incoming message.
 
 Missing QUDT offsets are normalized to zero as `qcr:effectiveConversionOffset` facts by the JavaScript planner. This avoids relying on negation-as-failure inside the arithmetic rule.
 
-## One large background-knowledge file
+## QUDT data and generated background
 
-The runtime normally compiles a smaller per-shape program. For inspection, reuse, or importing into a larger N3 background, generate one file containing:
-
-- the supplied QUDT Turtle;
-- effective multiplier/offset facts;
-- the generic backward rule.
+`background/qudt.ttl` is the committed official QUDT all-in-one Turtle graph. Refresh it
+from QUDT's unversioned resolved graph with:
 
 ```bash
-npm run build:background -- \
-  background/qudt-mini.ttl \
-  background/qudt-conversion-background.n3
+npm run fetch:qudt
 ```
 
-A generated file for the included 73-unit corpus is committed at `background/qudt-conversion-background.n3`.
+The downloaded file stays committed, so ordinary installs and builds are reproducible and
+do not require network access. To deliberately fetch a fixed release instead, pass its URL
+and output path:
 
-For production use, pass an official QUDT units distribution rather than the curated test subset. The builder retains only units that have a finite non-zero `qudt:conversionMultiplier` and an IRI-valued `qudt:hasDimensionVector`.
+```bash
+npm run fetch:qudt -- https://qudt.org/3.4.0/qudt-all background/qudt.ttl
+```
+
+`background/qudt-mini.ttl` remains a fast, curated test fixture and supplies a few stable
+aliases used by the historical corpus. It is not the playground's primary QUDT dataset.
+
+The runtime normally compiles a smaller target-specific program. `npm run build` also
+generates `dist/background/qudt-conversion-background.n3`, containing:
+
+- the official QUDT Turtle;
+- effective multiplier/offset and UCUM lookup facts; and
+- the generic backward rule.
+
+The generated file lives under `dist/` because it must not be edited manually. The
+pre-commit build refreshes and stages it. The builder retains only units that have a finite,
+non-zero `qudt:conversionMultiplier` and an IRI-valued `qudt:hasDimensionVector`.
 
 ## Example
 
@@ -338,9 +367,9 @@ The example normalizes a short RDF Message log containing metre, millimetre, cen
 ## Architecture
 
 ```text
-QUDT graph ──────────────┐
-                         ├─ constructor ─ SHACL-IN plan / pruned unit index
-SHACL IN ────────────────┘
+QUDT graph ─────────────── constructor ─ unit index
+                                      ├─ automatic input profile, or
+optional SHACL IN ────────────────────┘  custom/pruned input plan
 
 SHACL OUT ─ infer() ─ target-specific Eyeling program
                          │
@@ -370,7 +399,8 @@ Dimension equality prevents nonsensical conversions such as metre to second, but
 ## Repository layout
 
 ```text
-background/     curated QUDT graph and generated combined N3 background
+background/     official QUDT graph and curated fast test fixture
+dist/background generated combined N3 background; do not edit directly
 rules/          generic backward N3 conversion rule
 src/            planner, compiler, stream engine, RDF helpers
 examples/       runnable SHACL/RDF Message example
@@ -390,4 +420,7 @@ for pushes to `main`, pull requests, and manual dispatches.
 
 ## License and data note
 
-The project source is MIT-licensed. `background/qudt-mini.ttl` is a hand-curated interoperability fixture derived from publicly documented QUDT unit semantics and is not a replacement for, or redistribution of, the complete QUDT vocabularies. Review QUDT's own terms when distributing official QUDT data with an application.
+The project source is MIT-licensed. `background/qudt.ttl` comes from QUDT's official
+all-in-one graph and retains its upstream metadata, attribution, CC BY 4.0 notice, and UCUM
+rights notice. `background/qudt-mini.ttl` is a hand-curated interoperability fixture.
+Review the notices in the downloaded graph when redistributing QUDT or UCUM data.

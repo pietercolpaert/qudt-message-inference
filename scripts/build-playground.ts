@@ -55,7 +55,11 @@ const destinationRoot = join(root, 'dist', 'playground');
 const corpus = JSON.parse(
   readFileSync(join(fixtureRoot, 'manifests', 'all.json'), 'utf8'),
 ) as CorpusManifest;
-const unitIndex = new QudtUnitIndex(loadQuads(join(root, 'background', 'qudt-mini.ttl')));
+const unitIndex = new QudtUnitIndex([
+  // Preserve the stable fixture values and aliases used by the executable corpus.
+  ...loadQuads(join(root, 'background', 'qudt-mini.ttl')),
+  ...loadQuads(join(root, 'background', 'qudt.ttl')),
+]);
 
 function escapeTurtle(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -66,6 +70,10 @@ function inputRdf(testCase: TestCase): string {
     return `@prefix ex: <https://example.org/> .\n\n<${testCase.observation}>\n  a ex:Observation ;\n  <${testCase.property}> "${escapeTurtle(`${testCase.sourceValue} ${testCase.ucumCode}`)}"^^<${testCase.datatype}> .`;
   }
   return `@prefix ex:   <https://example.org/> .\n@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n<${testCase.observation}>\n  a ex:Observation ;\n  ex:quantity [\n    a qudt:QuantityValue ;\n    qudt:numericValue "${escapeTurtle(testCase.sourceValue)}"^^xsd:decimal ;\n    qudt:unit <${testCase.sourceUnit}>\n  ] .`;
+}
+
+function outputShacl(testCase: TestCase): string {
+  return `@prefix ex:   <https://example.org/> .\n@prefix qudt: <http://qudt.org/schema/qudt/> .\n@prefix sh:   <http://www.w3.org/ns/shacl#> .\n@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\nex:OutputShape a sh:NodeShape ;\n  sh:targetClass ex:Observation ;\n  sh:property [\n    sh:path ex:normalizedQuantity ;\n    sh:node ex:OutputQuantityShape\n  ] .\n\nex:OutputQuantityShape a sh:NodeShape ;\n  sh:property [\n    sh:path qudt:numericValue ;\n    sh:datatype xsd:decimal ;\n    sh:unit <${testCase.targetUnit}>\n  ] ;\n  sh:property [\n    sh:path qudt:unit ;\n    sh:hasValue <${testCase.targetUnit}>\n  ] .`;
 }
 
 function buildCase(
@@ -92,6 +100,7 @@ function buildCase(
     property: testCase.property,
     ucumCode: testCase.ucumCode,
     inputRdf: inputRdf(testCase),
+    outputShacl: outputShacl(testCase),
     source: {
       iri: source.iri,
       symbol: source.symbol ?? source.iri.split('/').pop() ?? source.iri,
@@ -169,7 +178,7 @@ writeFileSync(
   join(destinationRoot, 'cases.js'),
   `window.QUDT_PLAYGROUND_DATA = ${JSON.stringify(
     {
-      totalUnits: corpus.totalUnits,
+      totalUnits: unitIndex.size,
       totalCases: cases.length,
       structuredCases: structuredCases.length,
       literalCases: literalCases.length,

@@ -8,10 +8,15 @@ interface PlaygroundCase {
   readonly dimension: string;
   readonly representation: 'qudt-quantity' | 'cdt-literal';
   readonly inputRdf: string;
+  readonly outputShacl: string;
   readonly sourceValue: string;
   readonly expectedValue: string;
   readonly source: { readonly multiplier: number; readonly offset: number };
-  readonly target: { readonly multiplier: number; readonly offset: number };
+  readonly target: {
+    readonly iri: string;
+    readonly multiplier: number;
+    readonly offset: number;
+  };
 }
 
 interface PlaygroundData {
@@ -37,7 +42,7 @@ test('the generated browser playground contains and converts the full corpus', (
   const data = JSON.parse(match[1]) as PlaygroundData;
 
   assert.equal(data.totalCases, 78);
-  assert.equal(data.totalUnits, 73);
+  assert.ok(data.totalUnits > 73);
   assert.equal(data.structuredCases, 73);
   assert.equal(data.literalCases, 5);
   assert.equal(data.dimensions, 13);
@@ -54,6 +59,19 @@ test('the generated browser playground contains and converts the full corpus', (
     data.literalCases,
   );
   assert.ok(data.cases.every((item) => item.inputRdf.includes(item.sourceValue)));
+  assert.ok(
+    data.cases.every(
+      (item) =>
+        item.outputShacl.includes('sh:hasValue') &&
+        item.outputShacl.includes(item.target.iri),
+    ),
+  );
+  assert.ok(
+    data.cases.length > 0 &&
+      source.includes('http://qudt.org/vocab/unit/CentiM-PER-SEC') &&
+      source.includes('cm.s-1'),
+    'the playground should include the complete QUDT centimetre-per-second definition',
+  );
   assert.ok(
     data.cases.some(
       (item) =>

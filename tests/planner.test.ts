@@ -19,6 +19,49 @@ function lengthEngine(): QudtMessageInferenceEngine {
   });
 }
 
+function automaticEngine(): QudtMessageInferenceEngine {
+  return new QudtMessageInferenceEngine({ backgroundKnowledge: background });
+}
+
+test('SHACL IN is optional and leaves the complete QUDT index available', () => {
+  const summary = automaticEngine().getPlanSummary();
+  assert.equal(summary.inputRepresentation, 'auto');
+  assert.equal(summary.totalQudtUnits, 73);
+  assert.equal(summary.retainedQudtUnits, 73);
+  assert.equal(summary.sourceUnits.length, 73);
+  assert.equal(summary.quantityPath, undefined);
+  assert.equal(summary.numericValuePath, 'http://qudt.org/schema/qudt/numericValue');
+  assert.equal(summary.unitPath, 'http://qudt.org/schema/qudt/unit');
+});
+
+test('automatic input discovery converts standard nested QUDT quantities', async () => {
+  const message = loadRdfMessageLog(join(fixtures, 'logs', 'length.trig'))[2];
+  const output = automaticEngine().infer(
+    loadQuads(join(fixtures, 'shapes', 'length-out.ttl')),
+    [message],
+  );
+  const first = await output.next();
+  assert.equal(first.done, false);
+  if (first.done) return;
+  assert.deepEqual(first.value.diagnostics, []);
+  assert.equal(first.value.conversions.length, 1);
+  assert.equal(first.value.conversions[0].targetValue, 2.5);
+});
+
+test('automatic input discovery converts direct CDT literals', async () => {
+  const message = loadRdfMessageLog(join(fixtures, 'logs', 'cdt-speed.trig'))[0];
+  const output = automaticEngine().infer(
+    loadQuads(join(fixtures, 'shapes', 'speed-out.ttl')),
+    [message],
+  );
+  const first = await output.next();
+  assert.equal(first.done, false);
+  if (first.done) return;
+  assert.deepEqual(first.value.diagnostics, []);
+  assert.equal(first.value.conversions.length, 1);
+  assert.ok(Math.abs(first.value.conversions[0].targetValue - 43.2) < 1e-10);
+});
+
 test('SHACL IN prunes the QUDT index to reachable dimensions', () => {
   const summary = lengthEngine().getPlanSummary();
   assert.equal(summary.totalQudtUnits, 73);

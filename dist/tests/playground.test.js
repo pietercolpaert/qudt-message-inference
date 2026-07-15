@@ -18,7 +18,7 @@ function closeEnough(actual, expected) {
     strict_1.default.ok(match, 'cases.js should assign generated JSON to the browser data global');
     const data = JSON.parse(match[1]);
     strict_1.default.equal(data.totalCases, 78);
-    strict_1.default.equal(data.totalUnits, 73);
+    strict_1.default.ok(data.totalUnits > 73);
     strict_1.default.equal(data.structuredCases, 73);
     strict_1.default.equal(data.literalCases, 5);
     strict_1.default.equal(data.dimensions, 13);
@@ -32,6 +32,11 @@ function closeEnough(actual, expected) {
     strict_1.default.equal(new Set(data.cases.map((item) => item.dimension)).size, data.dimensions);
     strict_1.default.equal(data.cases.filter((item) => item.representation === 'cdt-literal').length, data.literalCases);
     strict_1.default.ok(data.cases.every((item) => item.inputRdf.includes(item.sourceValue)));
+    strict_1.default.ok(data.cases.every((item) => item.outputShacl.includes('sh:hasValue') &&
+        item.outputShacl.includes(item.target.iri)));
+    strict_1.default.ok(data.cases.length > 0 &&
+        source.includes('http://qudt.org/vocab/unit/CentiM-PER-SEC') &&
+        source.includes('cm.s-1'), 'the playground should include the complete QUDT centimetre-per-second definition');
     strict_1.default.ok(data.cases.some((item) => item.representation === 'cdt-literal' &&
         item.inputRdf.includes('http://w3id.org/lindt/custom_datatypes#speed')));
     strict_1.default.ok(data.cases.some((item) => item.representation === 'cdt-literal' &&

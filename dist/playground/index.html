@@ -30,7 +30,7 @@
         </p>
         <div class="corpus-stats" aria-label="Playground example summary">
           <span><strong id="case-count">78</strong> examples</span>
-          <span><strong id="unit-count">73</strong> units</span>
+          <span><strong id="unit-count">2,849</strong> usable units</span>
           <span><strong id="dimension-count">13</strong> dimensions</span>
         </div>
       </div>
@@ -63,14 +63,21 @@
             </div>
             <textarea id="rdf-input" aria-label="Editable input RDF Message" spellcheck="false"></textarea>
           </article>
+          <article class="editor-card shape-card">
+            <div class="code-title">
+              <span><span class="dot shape-dot"></span>Editable SHACL OUT</span>
+              <span class="shortcut">Target and paths</span>
+            </div>
+            <textarea id="shacl-output" aria-label="Editable SHACL output shape" spellcheck="false"></textarea>
+          </article>
           <article class="editor-card output-card">
             <div class="code-title"><span class="dot output-dot"></span>Inferred output RDF</div>
             <pre><code id="output-rdf"></code></pre>
           </article>
         </div>
         <p class="editor-help" id="editor-help">
-          The browser preview recognizes the supported nested QUDT quantity and all CDT
-          UCUM quantity-value datatype input profiles.
+          No SHACL IN is used here: input quantities are discovered automatically. Edit
+          SHACL OUT to change the target unit or output paths, then run the conversion.
         </p>
 
         <div class="conversion-path" aria-label="Conversion result">
@@ -126,7 +133,7 @@
 
     <footer>
       <span>QUDT Message Inference</span>
-      <span>73 curated units · 78 editable examples · MIT licensed</span>
+      <span>Official QUDT background · 78 editable examples · MIT licensed code</span>
     </footer>
   </body>
 </html>

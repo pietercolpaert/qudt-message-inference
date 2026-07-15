@@ -28,6 +28,7 @@ else {
         rule.trim(),
         '',
     ].join('\n');
+    (0, node_fs_1.mkdirSync)((0, node_path_1.dirname)(outputPath), { recursive: true });
     (0, node_fs_1.writeFileSync)(outputPath, combined, 'utf8');
     console.log(`Wrote ${index.size} usable QUDT unit definitions to ${outputPath}`);
 }

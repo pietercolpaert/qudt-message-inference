@@ -10,7 +10,7 @@ const root = resolve(__dirname, '../..');
 
 test('the generated combined N3 background can be imported directly by Eyeling', async () => {
   const background = readFileSync(
-    join(root, 'background', 'qudt-conversion-background.n3'),
+    join(root, 'dist', 'background', 'qudt-conversion-background.n3'),
     'utf8',
   );
   const trigger = `

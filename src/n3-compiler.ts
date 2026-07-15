@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { iri } from './rdf';
 import type { InputShapePlan, OutputShapePlan, QudtUnitDefinition } from './types';
-import { QCR, RDF } from './vocab';
+import { QCR, QUDT, RDF } from './vocab';
 import { QudtUnitIndex } from './qudt-index';
 
 export function loadDefaultBackwardRule(): string {
@@ -13,7 +13,35 @@ function compileTriggerRule(input: InputShapePlan, output: OutputShapePlan): str
   const classGuard = input.targetClasses.length
     ? input.targetClasses.map((classIri) => `?root ${iri(RDF.type)} ${iri(classIri)} .`).join('\n  ')
     : '';
+  if (input.representation === 'auto') {
+    return `
+{
+  ?root ?sourcePath ?sourceQuantity .
+  ?sourceQuantity ${iri(QUDT.numericValue)} ?sourceValue .
+  ?sourceQuantity ${iri(QUDT.unit)} ?sourceUnit .
+  (?sourceValue ?sourceUnit ${iri(output.targetUnit)}) ${iri(QCR.convertedValue)} ?targetValue .
+}
+=>
+{
+  ?sourceQuantity ${iri(QCR.convertedNumericValue)} ?targetValue .
+} .
+
+{
+  ?root ?sourcePath ?sourceLiteral .
+  (?sourceLiteral ?sourceDatatype) ${iri(QCR.parsedCdtValue)} (?sourceValue ?sourceUnit) .
+  (?sourceValue ?sourceUnit ${iri(output.targetUnit)}) ${iri(QCR.convertedValue)} ?targetValue .
+}
+=>
+{
+  ?root ${iri(QCR.parsedSourceLiteral)} ?sourceLiteral ;
+    ${iri(QCR.parsedSourceValue)} ?sourceValue ;
+    ${iri(QCR.parsedSourceUnit)} ?sourceUnit ;
+    ${iri(QCR.convertedNumericValue)} ?targetValue .
+} .
+`;
+  }
   if (input.representation === 'cdt-literal') {
+    if (!input.quantityPath) throw new Error('A CDT literal input plan requires a property path.');
     return `
 {
   ${classGuard}
@@ -33,6 +61,7 @@ function compileTriggerRule(input: InputShapePlan, output: OutputShapePlan): str
   if (!input.numericValuePath || !input.unitPath) {
     throw new Error('A QUDT quantity input plan requires numeric-value and unit paths.');
   }
+  if (!input.quantityPath) throw new Error('A QUDT quantity input plan requires a root path.');
   return `
 {
   ${classGuard}
@@ -55,7 +84,7 @@ export function compileEyelingProgram(options: {
   readonly input: InputShapePlan;
   readonly output: OutputShapePlan;
 }): string {
-  const cdtFacts = options.input.representation === 'cdt-literal'
+  const cdtFacts = options.input.representation !== 'qudt-quantity'
     ? [
         ...[...options.input.literalDatatypes].sort().map(
           (datatype) => `${iri(datatype)} ${iri(QCR.supportedCdtDatatype)} true .`,
@@ -69,11 +98,11 @@ export function compileEyelingProgram(options: {
   return [
     options.backwardRule.trim(),
     '',
-    '# Effective QUDT facts selected by the SHACL planner.',
+    '# Effective QUDT facts selected for this conversion.',
     options.index.serializeEffectiveFacts(options.units).trim(),
-    cdtFacts ? '\n# CDT datatypes and source units selected by SHACL.\n' + cdtFacts : '',
+    cdtFacts ? '\n# Accepted CDT datatypes and source units.\n' + cdtFacts : '',
     '',
-    '# Forward trigger compiled from SHACL IN and SHACL OUT.',
+    '# Forward trigger compiled from the input profile and SHACL OUT.',
     compileTriggerRule(options.input, options.output).trim(),
     '',
   ].join('\n');

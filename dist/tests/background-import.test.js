@@ -11,7 +11,7 @@ const eyeling_1 = require("eyeling");
 const src_1 = require("../src");
 const root = (0, node_path_1.resolve)(__dirname, '../..');
 (0, node_test_1.default)('the generated combined N3 background can be imported directly by Eyeling', async () => {
-    const background = (0, node_fs_1.readFileSync)((0, node_path_1.join)(root, 'background', 'qudt-conversion-background.n3'), 'utf8');
+    const background = (0, node_fs_1.readFileSync)((0, node_path_1.join)(root, 'dist', 'background', 'qudt-conversion-background.n3'), 'utf8');
     const trigger = `
 @prefix ex:   <https://example.org/> .
 @prefix qudt: <http://qudt.org/schema/qudt/> .
